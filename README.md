@@ -5,21 +5,20 @@
 
 ## Downloading A Document
 
-You can now download a document's images by its URL with 
-one command, without searching through the source of the 
-web page. 
+You can download a document's images by its URL with 
+one command.
 
 On Windows, this can be done by running **issuu-dl**.
 This is the file with the Issuu icon.
 
-On linux, this program is untested but may work
-by running **issuu-dl.pl** or **perl issuu-dl.pl**
+On linux, this can be done by running **issuu-dl.pl** 
+or **perl issuu-dl.pl**.
 
 This will show a prompt where you can paste an Issuu document URL.
 These are usually in the format *http://issuu.com/[user]/docs/[title]*.
 
-After downloading each page as a .jpg file, the program will
-convert all .jpg files to a single .pdf file.
+The program will download each page as a .jpg file, and then
+convert all of the .jpg files to a single .pdf file.
 
 ### Directories
 
@@ -72,12 +71,14 @@ options not described here.
   - [Image Magick](http://www.imagemagick.org/) 
     - this is used for converting from .jpg to .pdf
 
-### Testing Completed
+### Testing Done
 
-  - tested under Windows 7 command prompt and explorer
-  - also tested under Windows 7 cygwin 64-bit
+  - tested under Windows 7, 
+    via command prompt and explorer
+  - also tested under Windows 7 cygwin 64-bit 
+    linux-like command-line
 
-  - tested with Perl v5.14.2), 
+  - tested with Perl v5.14.2 
   - tested with Image Magick 6.9.1-2 Q16 x64
 
 ## URLs
