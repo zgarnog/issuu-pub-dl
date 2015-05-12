@@ -167,14 +167,13 @@ if ( $total_pages !~ /^\d+$/ ) {
 
 
 
-my $dest = File::Spec->catpath( '', $FindBin::Bin, 'downloads', $title );
+my $dl_dir = File::Spec->catpath( '', $FindBin::Bin, 'downloads' );
+my $dest = File::Spec->catpath( '', $dl_dir, $title );
 $dest =~ s{\.pdf$}{}i;
 
 my $descr = '"'.$title.'" ('.$total_pages.' pages)';
-say '';
-say 'Will Download '.$descr.'.';
-say '';
 if ( -d $dest ) {
+	say '';
 	say "WARNING - directory exists; will overwrite files under \"$dest\'";
 	print 'Press any key to continue > ';
 	<STDIN>;
