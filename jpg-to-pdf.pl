@@ -30,7 +30,10 @@ GetOptions(
 
 
 my $convert_program = 'convert';
-my $convert_opts = ' -density '.( $density || 300 );
+my $convert_opts = ' ';
+if ( $density ) {
+	$convert_opts .= ' -density '.$density.' ';
+}
 
 $wd ||= '';
 chomp $wd;

@@ -235,11 +235,6 @@ while ( my $line = <$CMD_OUT> ) {
 
 
 
-say '';
-say 'Press any key to exit...';
-<STDIN>;
-
-
 1;
 
 __END__
