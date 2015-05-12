@@ -6,31 +6,40 @@
 
 You can now download a document's images by its URL with 
 one command, without searching through the source of the 
-web page:
+web page. 
 
-```
-perl issuu-dl.pl --url=[URL]
-```
+On Windows, this can be done by running ```issuu-dl.bat```.
 
-Or, to receive a prompt to input a URL, just run ```issuu-dl.pl```.
+On linux, this program is untested but may work
+by running: ```issuu-dl.pl``` or ```perl issuu-dl.pl```
 
+This will show a prompt where you can paste an Issuu document URL.
 
 ```issuu-dl.pl``` will also convert all .jpg files to .pdf, 
 after prompting the user to continue.
 
+
 This will result in all pages as pdfs, which can then be combined into
 a single file using a program like [PDF Split and Merge Basic](http://www.pdfsam.org/).
 
+## Notes
+
+To get options for sending a URL without a prompt, 
+run ```issuu-dl.pl``` or run ```perldoc issuu-dl.pl```.
 
 ## DEPENDENCIES
 
   - Perl 
     - example: [DWIM Perl](http://dwimperl.com/)
-    - tested with Perl v5.14.2), under Windows 7
   - [Image Magick](http://www.imagemagick.org/) 
     - this is used for converting .jpg to .pdf
-    - tested with Image Magick 6.9.1-2 Q16 x64, under Windows 7
 
+### Testing Completed
+
+  - tested with Perl v5.14.2), 
+  - tested with Image Magick 6.9.1-2 Q16 x64, under Windows 7
+  - tested under Windows 7 command prompt and explorer
+    - also tested under Windows 7 cygwin 64-bit
 
 ## URLs
 

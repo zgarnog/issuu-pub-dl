@@ -27,6 +27,11 @@ use JSON;
 
 $| = 1; # autoflush STDOUT
 
+say '';
+say '----------------------------';
+say 'Issuu Publication Downloader (issuu-dl.pl)';
+say '----------------------------';
+
 
 my $debug;
 my $url;
@@ -39,11 +44,11 @@ GetOptions(
 
 
 if ( ! $url and ! @ARGV ) {
-	say 'Enter URL (blank to skip): ';
+	say 'Enter issuu document URL (blank to skip): ';
 	print '> ';
 	$url = <STDIN> || '';
+	chomp $url;
 	if ( $url ) {
-		chomp $url;
 		$url =~ s/^\s+//; # trim leading whitespace
 		$url =~ s/\s+$//; # trim trailing whitespace
 	} else {
