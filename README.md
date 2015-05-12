@@ -15,15 +15,17 @@ This command will also convert all .jpg files to .pdf, after prompting
 the user to continue.
 
 This will result in all pages as pdfs, which can then be combined into
-a single file using a program like [pdf split and merge basic](http://www.pdfsam.org/).
+a single file using a program like [PDF Split and Merge Basic](http://www.pdfsam.org/).
 
 
 ## DEPENDENCIES
 
-  - Perl
+  - Perl 
     - example: [DWIM Perl](http://dwimperl.com/)
-  - [Image Magick](http://www.imagemagick.org/)
-    - (for converting .jpg to .pdf)
+    - tested with Perl v5.14.2), under Windows 7
+  - [Image Magick](http://www.imagemagick.org/) 
+    - this is used for converting .jpg to .pdf
+    - tested with Image Magick 6.9.1-2 Q16 x64, under Windows 7
 
 
 ## URLs
