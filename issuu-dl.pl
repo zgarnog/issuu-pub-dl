@@ -43,16 +43,26 @@ my $url;
 my $document_id;
 my $sleep;
 my $start_page;
+my $urls_list_file;
+my $help;
 GetOptions( 
-	'debug'	=> \$debug,
-	'url=s'	=> \$url,
-	'id=s'	=> \$document_id,
-	'sleep=i' => \$sleep,
-	'start=i' => \$start_page,
+	'debug'		=> \$debug,
+	'url=s'		=> \$url,
+	'list=s'  	=> \$urls_list_file,
+	'id=s'		=> \$document_id,
+	'sleep=i' 	=> \$sleep,
+	'start=i' 	=> \$start_page,
+	'help'		=> \$help,
 );
 
 
-my $wget = './wget.exe'; # windows wget
+if ( $help ) {
+	Pod::Usage::pod2usage( ' ' ); # prints SYNOPSIS and exits
+}
+
+my $wget_bin = './wget.exe'; # windows wget
+
+my $dl_dir = File::Spec->catpath( '', $FindBin::Bin, 'downloads' );
 
 
 my $lc_os = lc( $^O );
@@ -73,14 +83,15 @@ if ( $os ne 'windows' ) {
 	# look for linux/cygwin wget
 	my @output = qx( which wget );
 	my $exit_value = $? >> 8;
-	if ( $exit_value == 0 and @output ) {
-		$wget = $output[0];
+	if ( $exit_value == 0 and @output and $output[0] ) {
+		chomp @output;
+		$wget_bin = $output[0];
 		if ( $debug ) {
-			say 'found '.$os.' wget: '.$wget;
+			say 'found '.$os.' wget: '.$wget_bin;
 		}
 	}
 } elsif ( $debug ) {
-	say 'using '.$os.' wget: '.$wget;
+	say 'using '.$os.' wget: '.$wget_bin;
 }
 
 
@@ -89,18 +100,9 @@ if ( ! $sleep ) {
 	$sleep = 0;
 }
 
-if ( ! $url and ! @ARGV ) {
-	say 'Enter issuu document URL (blank to skip): ';
-	print '> ';
-	$url = <STDIN> || '';
-	chomp $url;
-	if ( $url ) {
-		$url =~ s/^\s+//; # trim leading whitespace
-		$url =~ s/\s+$//; # trim trailing whitespace
-	} else {
-		say 'No URL received.';
-	}
-}
+
+
+
 
 if ( ! $sleep ) {
 	say 'Enter seconds to sleep after each request (0)';
@@ -117,222 +119,311 @@ if ( ! $sleep ) {
 	}
 }	
 
+if ( $urls_list_file ) {
 
-
-my $title = '';
-my $total_pages = '';
-
-if ( $debug ) {
-	say 'URL: '.( $url || 'undef' );
-}
-if ( $url ) {
-	if ( $url !~ m{https?://} ) {
-		say 'WARN - URL may be invalid';
-	}
-
-	my $temp_file = 'temp-'.time().'.html';
-
-	my $cmd = $wget.' -nv -q --output-document="'.$temp_file.'" '.
-		' "'.$url.'" ';
-
-	my @output = qx( $cmd );
-	my $exit_value = $? >> 8;
-	if ( $exit_value > 0 ) {
-		say 'ERROR - command failed: [ '.$cmd.' ] :'.$!;
-		say '==== output: ====';
-		say 'OUT - '.$_ for @output;
-		say '=================';
-		Carp::croak( 'command failed' );
-	}
-
-	my $content = File::Slurp::read_file( $temp_file );
-	unlink $temp_file;
-	
-	
 	if ( $debug ) {
-		say 'got content ('.length( $content ).' chars) from URL';
+		say 'DEBUG - list file: '.$urls_list_file;
 	}
 
-	my ( $extra, $json ) = split /window.issuuDataCache\s+=\s+/s, $content;
+	my @urls_list = File::Slurp::read_file( $urls_list_file ) or
+		die( 'failed to read urls file "'.$urls_list_file.'": '.$! );
 
-	if ( $json ) {
-		( $json, $extra )  = split m{</script>}s, $json;
-	} elsif ( $debug ) {
-		say '1st split returned no $json';
-	}
+	chomp @urls_list;
+	say 'Loaded file with '.scalar( @urls_list ).' lines';
+	my $count = 0;
+	foreach my $url ( @urls_list ) {
+		$count++;
 
-	if ( $json ) {
-		my $ref;
+		# trim whitespace
+		$url =~ s/^\s+//;
+		$url =~ s/\s+$//;
+
+		my $prefix = '['.$count.'] ';
+		if ( $url !~ m{https?://} ) {
+			say $prefix.'WARN - URL may be invalid: '.$url.' ';
+		}
+
 		eval {
-			$ref = JSON::from_json( $json );
+			my ( $title, $document_id, $total_pages ) = _get_doc_data_by_url( $url );
+
+			_get_document( $title, $document_id, $total_pages, { auto => 1 }, );
 		};
 		my $e = $@;
 		if ( $e ) {
 			chomp $e;
-			Carp::croak( 'Failed to decode issuuDataCache JSON: '.$e );
+			say $prefix.'ERROR - failed to process url: '.$url;
+			say $prefix.'ERROR - '.$e;
 		}
+	}
 
 
-		if ( ref $ref->{apiCache} eq 'HASH' ) {
-			my %cache = %{ $ref->{apiCache} };
-			KEY: foreach my $k ( sort keys %cache ) {
-				if ( ref $cache{ $k } eq 'HASH' ) {
-					if ( ref $cache{ $k }{document} eq 'HASH' ) {
-						my %document = %{ $cache{ $k }{document} };
-						if ( $debug ) {
-							say 'found document under $ref->{apiCache}{'.$k.'}{document}';
-							say '===========';
-							print Data::Dumper::Dumper( \%document );
-							say '===========';
+} else {
+
+	if ( $debug ) {
+		say 'DEBUG - no list file';
+	}
+
+	if ( ! $url and ! @ARGV ) {
+		say 'Enter issuu document URL (blank to skip): ';
+		print '> ';
+		$url = <STDIN> || '';
+		chomp $url;
+		if ( $url ) {
+			$url =~ s/^\s+//; # trim leading whitespace
+			$url =~ s/\s+$//; # trim trailing whitespace
+		} else {
+			say 'No URL received.';
+		}
+	}
+
+
+	my ( $title, $document_id, $total_pages );
+
+	if ( $url ) {
+		( $title, $document_id, $total_pages ) = _get_doc_data_by_url( $url );
+	}
+
+	if ( ! $title || ! $document_id || ! $total_pages ) {
+		( $title, $total_pages, $document_id ) = @ARGV;
+	}
+
+	_get_document( $title, $document_id, $total_pages );
+
+}
+
+
+sub _get_document {
+	my $title = shift;
+	my $document_id = shift;
+	my $total_pages = shift;
+	my $o_ref = shift;
+	
+	my %o = ();
+	if ( ref $o_ref eq 'HASH' ) {
+		%o = %$o_ref;
+	}
+
+
+	if ( ! $title || ! $document_id || ! $total_pages ) {
+		say '';
+		die( 'ERROR - Missing one of : title, document_id, total_pgaes' );
+	}
+	if ( $total_pages !~ /^\d+$/ ) {
+		say '';
+		die( 'ERROR - total_pages should be an integer' );
+	}
+
+
+
+	my $dest = File::Spec->catpath( '', $dl_dir, $title );
+	$dest =~ s{\.pdf$}{}i;
+	
+	
+	if ( ! $start_page ) {
+		$start_page = 1;
+	}
+	
+	my $descr = '"'.$title.'" ('.$total_pages.' pages)';
+	if ( -d $dest ) {
+		my @page_files = glob( File::Spec->catfile( $dest, '*.jpg' ) );
+		if ( @page_files ) {
+			PAGE_FILE: foreach my $page_file ( reverse sort @page_files ) {
+				if ( -f $page_file ) {
+					if ( -s $page_file > 0 ) {
+						my ( $number ) = $page_file =~ m{([1-9]\d*)\.jpg$};
+						if ( $number ) {
+							$start_page = $number + 1;
+							last PAGE_FILE;
+						} elsif ( $debug ) {
+							say 'DEBUG - no number found in: '.$page_file;
 						}
-						$title 		 = $document{orgDocName} || '';
-						$document_id = $document{documentId} || '';
-						$total_pages = $document{pageCount} || '';
-						last KEY;
-					}
-				}
-			}
-		}
-
-		if ( $debug ) {
-			say 'loaded title: '.( $title || 'undef' );
-			say 'loaded document_id: '.( $document_id || 'undef' );
-			say 'loaded total_pages: '.( $total_pages || 'undef' );
-		}
-
-		
-	} elsif ( $debug ) {
-		say '2nd split returned no $json';
-	}
-
-}
-
-if ( ! $title || ! $document_id || ! $total_pages ) {
-	( $title, $total_pages, $document_id ) = @ARGV;
-}
-
-
-if ( ! $title || ! $document_id || ! $total_pages ) {
-	Pod::Usage::pod2usage( ' ' ); # prints SYNOPSIS and exits
-}
-if ( $total_pages !~ /^\d+$/ ) {
-	say '';
-	say 'ERROR - total_pages should be an integer';
-	Pod::Usage::pod2usage( ' ' ); # prints SYNOPSIS and exits
-}
-
-
-
-
-
-my $dl_dir = File::Spec->catpath( '', $FindBin::Bin, 'downloads' );
-my $dest = File::Spec->catpath( '', $dl_dir, $title );
-$dest =~ s{\.pdf$}{}i;
-
-
-if ( ! $start_page ) {
-	$start_page = 1;
-}
-
-my $descr = '"'.$title.'" ('.$total_pages.' pages)';
-if ( -d $dest ) {
-	my @page_files = glob( File::Spec->catfile( $dest, '*.jpg' ) );
-	if ( @page_files ) {
-		PAGE_FILE: foreach my $page_file ( reverse sort @page_files ) {
-			if ( -f $page_file ) {
-				if ( -s $page_file > 0 ) {
-					my ( $number ) = $page_file =~ m{([1-9]\d*)\.jpg$};
-					if ( $number ) {
-						$start_page = $number + 1;
-						last PAGE_FILE;
 					} elsif ( $debug ) {
-						say 'DEBUG - no number found in: '.$page_file;
+						say 'DEBUG - zero size file: '.$page_file;
 					}
-				} elsif ( $debug ) {
-					say 'DEBUG - zero size file: '.$page_file;
 				}
 			}
+		} elsif ( $debug ) {
+			say 'found no page files under: '.$dest;
 		}
-	} elsif ( $debug ) {
-		say 'found no page files under: '.$dest;
+		say '';
+		if ( $start_page > 0 ) {
+			say 'WARN - directory exists; will resume at page '.$start_page.' under';
+			say 'WARN - "'.$dest.'"';
+		} else {
+			say 'WARN - directory exists; could overwrite files under';
+			say 'WARN - "'.$dest.'"';
+		}
+		if ( ! $o{auto} ) {
+			print 'Press any key to continue > ';
+			<STDIN>;
+		}
 	}
+
+
+	if ( ! -e $dest ) {
+		File::Path::mkpath( $dest );
+	}
+
+
+
 	say '';
-	if ( $start_page > 0 ) {
-		say 'WARN - directory exists; will resume at page '.$start_page.' under "'.$dest.'"';
-	} else {
-		say 'WARN - directory exists; will overwrite files under "'.$dest.'"';
-	}
-	print 'Press any key to continue > ';
-	<STDIN>;
-}
-
-
-if ( ! -e $dest ) {
-	File::Path::mkpath( $dest );
-}
-
-
-
-say '';
-say 'Downloading '.$descr;
-say '  - starting on page '.$start_page;
-if ( $sleep > 0 ) {
-	say '  - sleeping '.$sleep.' seconds after each page';
-}
-say 'Please wait...';
-say '';
-
-
-my $start_time = time();
-foreach my $cur_page ( $start_page .. $total_pages ) {
-
-	my $page_padded = sprintf( '%0.3d', $cur_page );
-
-
-	my $img_file = File::Spec->catpath( '', $dest, 'file_'.$page_padded.'.jpg' );
-
-	
-	my $cmd = $wget.' -nv -q --output-document="'.$img_file.'" '.
-		' "http://image.issuu.com/'.$document_id.'/jpg/page_'.$cur_page.'.jpg"';
-
-	my @output = qx( $cmd );
-	my $exit_value = $? >> 8;
-	if ( $exit_value > 0 ) {
-		say 'ERROR - command failed: [ '.$cmd.' ]: '.$!;
-		say '==== output: ====';
-		say 'OUT - '.$_ for @output;
-		say '=================';
-		Carp::croak( 'command failed' );
-
-		Carp::croak( 'command failed' );
-	}
-	
-	if ( $cur_page % 10 == 0 ) {
-		say 'downloaded '.$page_padded.' / '.$total_pages.' pages (elapsed '.( time() - $start_time ).' seconds)';
-	}
+	say 'Downloading '.$descr;
+	say '  - starting on page '.$start_page;
 	if ( $sleep > 0 ) {
-		sleep( $sleep );
+		say '  - sleeping '.$sleep.' seconds after each page';
 	}
-}
+	say 'Please wait...';
+	say '';
 	
-say '';
-say 'Done; downloaded '.$total_pages.' pages (elapsed '.( time() - $start_time ).' seconds)';
-say '';
-
-
-my $cmd = 'perl '.$FindBin::Bin.'/jpg-to-pdf.pl "'.$dest.'"';
-
-my $CMD_OUT = undef;
-if ( ! ( open $CMD_OUT, '-|', $cmd.' 2>&1 ' ) ) {
-	say 'INFO - command: '.$cmd;
-	Carp::croak( 'failed to run command: '.$! );
+	
+	my $start_time = time();
+	foreach my $cur_page ( $start_page .. $total_pages ) {
+	
+		my $page_padded = sprintf( '%0.3d', $cur_page );
+	
+	
+		my $img_file = File::Spec->catpath( '', $dest, 'file_'.$page_padded.'.jpg' );
+	
+		
+		my $cmd = $wget_bin.' -nv -q --output-document="'.$img_file.'" '.
+			' "http://image.issuu.com/'.$document_id.'/jpg/page_'.$cur_page.'.jpg"';
+	
+		my @output = qx( $cmd );
+		my $exit_value = $? >> 8;
+		if ( $exit_value > 0 ) {
+			say 'ERROR - command failed: [ '.$cmd.' ]: '.$!;
+			say '==== output: ====';
+			say 'OUT - '.$_ for @output;
+			say '=================';
+			Carp::croak( 'command failed' );
+	
+			Carp::croak( 'command failed' );
+		}
+		
+		if ( $cur_page % 10 == 0 ) {
+			say 'downloaded '.$page_padded.' / '.$total_pages.' pages (elapsed '.( time() - $start_time ).' seconds)';
+		}
+		if ( $sleep > 0 ) {
+			sleep( $sleep );
+		}
+	}
+		
+	say '';
+	say 'Done; downloaded '.$total_pages.' pages (elapsed '.( time() - $start_time ).' seconds)';
+	say '';
+	
+	
+	my $cmd = 'perl '.$FindBin::Bin.'/jpg-to-pdf.pl "'.$dest.'"';
+	
+	my $CMD_OUT = undef;
+	if ( ! ( open $CMD_OUT, '-|', $cmd.' 2>&1 ' ) ) {
+		say 'INFO - command: '.$cmd;
+		Carp::croak( 'failed to run command: '.$! );
+	}
+	
+	while ( my $line = <$CMD_OUT> ) {
+		chomp $line;
+		say '('.$$.') '.$line;
+	}
+	
 }
 
-while ( my $line = <$CMD_OUT> ) {
-	chomp $line;
-	say '('.$$.') '.$line;
-}
 
+######## SUBROUTINES
+
+
+sub _get_doc_data_by_url {
+	my $url = shift;
+	
+	my ( $title, $document_id, $total_pages );
+	
+	if ( $debug ) {
+		say 'URL: '.( $url || 'undef' );
+	}
+	if ( $url ) {
+		if ( $url !~ m{https?://} ) {
+			say 'WARN - URL may be invalid';
+		}
+	
+		my $temp_file = 'temp-'.time().'.html';
+	
+		my $cmd = $wget_bin.' -nv -q --output-document="'.$temp_file.'" '.
+			' "'.$url.'" ';
+	
+		my @output = qx( $cmd );
+		my $exit_value = $? >> 8;
+		if ( $exit_value > 0 ) {
+			say 'ERROR - command failed: [ '.$cmd.' ] :'.$!;
+			say '==== output: ====';
+			say 'OUT - '.$_ for @output;
+			say '=================';
+			Carp::croak( 'command failed' );
+		}
+	
+		my $content = File::Slurp::read_file( $temp_file );
+		unlink $temp_file;
+		
+		
+		if ( $debug ) {
+			say 'got content ('.length( $content ).' chars) from URL';
+		}
+	
+		my ( $extra, $json ) = split /window.issuuDataCache\s+=\s+/s, $content;
+	
+		if ( $json ) {
+			( $json, $extra )  = split m{</script>}s, $json;
+		} elsif ( $debug ) {
+			say '1st split returned no $json';
+		}
+	
+		if ( $json ) {
+			my $ref;
+			eval {
+				$ref = JSON::from_json( $json );
+			};
+			my $e = $@;
+			if ( $e ) {
+				chomp $e;
+				Carp::croak( 'Failed to decode issuuDataCache JSON: '.$e );
+			}
+	
+	
+			if ( ref $ref->{apiCache} eq 'HASH' ) {
+				my %cache = %{ $ref->{apiCache} };
+				KEY: foreach my $k ( sort keys %cache ) {
+					if ( ref $cache{ $k } eq 'HASH' ) {
+						if ( ref $cache{ $k }{document} eq 'HASH' ) {
+							my %document = %{ $cache{ $k }{document} };
+							if ( $debug ) {
+								say 'found document under $ref->{apiCache}{'.$k.'}{document}';
+								say '===========';
+								print Data::Dumper::Dumper( \%document );
+								say '===========';
+							}
+							$title 		 = $document{orgDocName} || '';
+							$document_id = $document{documentId} || '';
+							$total_pages = $document{pageCount} || '';
+							last KEY;
+						}
+					}
+				}
+			}
+	
+			if ( $debug ) {
+				say 'loaded title: '.( $title || 'undef' );
+				say 'loaded document_id: '.( $document_id || 'undef' );
+				say 'loaded total_pages: '.( $total_pages || 'undef' );
+			}
+	
+			
+		} elsif ( $debug ) {
+			say '2nd split returned no $json';
+		}
+	
+	}
+	
+	return ( $title, $document_id, $total_pages );
+}
 
 
 
