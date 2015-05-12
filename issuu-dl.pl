@@ -164,6 +164,7 @@ if ( $total_pages !~ /^\d+$/ ) {
 
 
 my $dest = File::Spec->catpath( '', 'downloads', $title );
+$dest =~ s{\.pdf$}{}i;
 
 my $descr = '"'.$title.'" ('.$total_pages.' pages)';
 say '';
@@ -178,7 +179,6 @@ if ( ! -e $dest ) {
 	File::Path::mkpath( $dest );
 }
 
-if ( 0 ) {
 
 
 say '';
@@ -208,7 +208,6 @@ foreach my $cur_page ( 1 .. $total_pages ) {
 	
 }
 
-}
 	
 say '';
 say 'Done; downloaded '.$total_pages.' pages';

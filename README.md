@@ -15,12 +15,9 @@ by running: ```issuu-dl.pl``` or ```perl issuu-dl.pl```
 
 This will show a prompt where you can paste an Issuu document URL.
 
-```issuu-dl.pl``` will also convert all .jpg files to .pdf, 
-after prompting the user to continue.
+```issuu-dl.pl``` will also convert all .jpg files to a single .pdf, 
+after prompting the user to continue. This is done using ImageMagick.
 
-
-This will result in all pages as pdfs, which can then be combined into
-a single file using a program like [PDF Split and Merge Basic](http://www.pdfsam.org/).
 
 ## Notes
 

@@ -1,24 +1,5 @@
 #!/usr/bin/perl
 
-=head1 NAME
-
-page-to-pdf.pl
-
-=head2 AUTHOR
-
-zgarnog <zgarnog@yandex.com>
-
-=head2 DEPENDENCIES
-
-requires Image Magick
-
-=head2 CHANGES
-
-  - 2015-04-20
-     - created
-
-=cut
-
 
 $| = 1; # autoflush STDOUT
 
@@ -29,60 +10,92 @@ use warnings;
 use feature ':5.10';
 use Cwd;
 use Getopt::Long;
+use Pod::Usage;
 
 my $wd;
+my $output_file;
 GetOptions(
 	'dir=s'	=> \$wd,
+	'output=s'	=> \$output_file,
 );
 
+$wd ||= '';
+chomp $wd;
 
+my $wd_from_option = 1;
 if ( ! $wd ) {
+	$wd_from_option = 0;
 	$wd = Cwd::getcwd();
+}
+
+if ( $output_file ) {
+	if ( $output_file !~ /\.pdf/i ) {
+		say 'ERROR - output file must have .pdf extension';
+		Pod::Usage::pod2usage( ' ' ); # prints SYNOPSIS and exits
+	}
+} else {
+	$output_file = $wd;
+	$output_file =~ s{/$}{};
+	$output_file =~ s{\\$}{};
+	$output_file .= '.pdf';
 }
 
 my $convert_program = 'convert';
 
-my $glob_string = $wd.'/*.jpg';
-my @jpg_files = glob( $glob_string );
+# remove any quotes
+$wd =~ s/^"//;
+$wd =~ s/"$//;
 
-my $prog_name = $0;
-$prog_name =~ s{.*\/}{};
-say '';
-say '['.$prog_name.']';
-say '';
-say 'This program will convert '.scalar( @jpg_files ).' jpg files to pdf';
-say 'from: ['.$glob_string.']';
-say 'using ImageMagick '.$convert_program;
-say '';
-say 'press CTRL-C to abort or Enter to continue > ';
-<STDIN>;
-
-my $count = 0;
-foreach my $jpg_file ( @jpg_files ) {
-	chomp $jpg_file;
-	$count++;
-	my $prefix = '['.$count.'] ';
-	my $pdf_file = $jpg_file;
-	if ( $pdf_file =~ s/\.jpg$/.pdf/i ) {
-		my $cmd = $convert_program.' "'.$jpg_file.'" "'.$pdf_file.'"';
-		my @output = qx( $cmd );
-		my $exit_val = $? >> 8;
-		if ( $exit_val ) {
-			say $prefix.'ERROR - command falied with exit value ['.$exit_val.']';
-			say $prefix.'output:';
-			chomp @output;
-			say $prefix.'OUT - '.$_ for @output;
-			print $prefix.'press CTRL-C to abort or Enter to continue > ';
-			<STDIN>;
-		} else {
-			say $prefix.'created pdf: ['.$pdf_file.']';
-		}
-	} else {
-		say $prefix.'ERROR - failed to replace suffix on file ['.$jpg_file.']';
-		print $prefix.'press CTRL-C to abort or Enter to continue > ';
-		<STDIN>;
-	}
+my $glob_string = '"'.$wd.'"/*.jpg';
+my @files = glob( $glob_string );
+if ( ! @files ) {
+	say 'ERROR - No *.jpg files found: '.$glob_string;
+	Pod::Usage::pod2usage( ' ' ); # prints SYNOPSIS and exits
 }
+
+my $cmd = $convert_program.' '.$glob_string.' "'.$output_file.'"';
+say 'running: '.$cmd;
+my @output = qx( $cmd );
+my $exit_val = $? >> 8;
+if ( $exit_val ) {
+	say 'ERROR - command falied with exit value ['.$exit_val.']';
+	say 'output:';
+	chomp @output;
+	say 'OUT - '.$_ for @output;
+	die( 'command failed' );
+} else {
+	say 'created pdf: ['.$output_file.']';
+}
+
+
+__END__
+
+=head1 NAME
+
+jpg-to-pdf.pl
+
+=head1 SYNOPSIS
+
+  jpg-to-pdf.pl --dir=[directory]
+
+  jpg-to-pdf.pl --dir=[directory] --output=[filename.pdf]
+
+=head1 AUTHOR
+
+zgarnog <zgarnog@yandex.com>
+
+=head1 DEPENDENCIES
+
+  Perl v5.14.2
+
+  ImageMagick 6.7.6-3 
+
+=head1 CHANGES
+
+  - 2015-04-20
+     - created
+
+=cut
 
 
 # vim: ts=4
