@@ -37,16 +37,53 @@ say 'Issuu Publication Downloader (issuu-dl.pl v'.$VERSION.')';
 say '----------------------------';
  
 
+
 my $debug;
 my $url;
 my $document_id;
 my $sleep;
+my $start_page;
 GetOptions( 
 	'debug'	=> \$debug,
 	'url=s'	=> \$url,
 	'id=s'	=> \$document_id,
-	'sleep=i'	=> \$sleep,
+	'sleep=i' => \$sleep,
+	'start=i' => \$start_page,
 );
+
+
+my $wget = './wget.exe'; # windows wget
+
+
+my $lc_os = lc( $^O );
+
+
+my $os = 'linux_maybe';
+if ( $lc_os =~ /mswin/ ) {
+	$os = 'windows';
+} elsif ( $lc_os =~ /cygwin/ ) {
+	$os = 'cygwin';
+}
+
+if ( $debug ) {
+	say 'os '.$os.' ( lc_os: '.$lc_os.' )';
+}
+
+if ( $os ne 'windows' ) {
+	# look for linux/cygwin wget
+	my @output = qx( which wget );
+	my $exit_value = $? >> 8;
+	if ( $exit_value == 0 and @output ) {
+		$wget = $output[0];
+		if ( $debug ) {
+			say 'found '.$os.' wget: '.$wget;
+		}
+	}
+} elsif ( $debug ) {
+	say 'using '.$os.' wget: '.$wget;
+}
+
+
 
 if ( ! $sleep ) {
 	$sleep = 0;
@@ -63,24 +100,24 @@ if ( ! $url and ! @ARGV ) {
 	} else {
 		say 'No URL received.';
 	}
-	if ( ! $sleep ) {
-		say 'Enter seconds to sleep after each request (0)';
-		print '> ';
-		$sleep = <STDIN>;
-		chomp $sleep;
-		$sleep =~ s/^\s+//;
-		$sleep =~ s/\s+$//;
-
-		if ( ! $sleep ) {
-			$sleep = 0;
-		} elsif ( $sleep !~ /^\d+$/ ) {
-			die( 'ERROR - sleep should be an integer (digits only), got: '.$sleep );
-		}
-	}	
 }
 
+if ( ! $sleep ) {
+	say 'Enter seconds to sleep after each request (0)';
+	print '> ';
+	$sleep = <STDIN>;
+	chomp $sleep;
+	$sleep =~ s/^\s+//;
+	$sleep =~ s/\s+$//;
 
-my $wget = './wget.exe';
+	if ( ! $sleep ) {
+		$sleep = 0;
+	} elsif ( $sleep !~ /^\d+$/ ) {
+		die( 'ERROR - sleep should be an integer (digits only), got: '.$sleep );
+	}
+}	
+
+
 
 my $title = '';
 my $total_pages = '';
@@ -102,7 +139,9 @@ if ( $url ) {
 	my $exit_value = $? >> 8;
 	if ( $exit_value > 0 ) {
 		say 'ERROR - command failed: [ '.$cmd.' ] :'.$!;
+		say '==== output: ====';
 		say 'OUT - '.$_ for @output;
+		say '=================';
 		Carp::croak( 'command failed' );
 	}
 
@@ -190,10 +229,39 @@ my $dl_dir = File::Spec->catpath( '', $FindBin::Bin, 'downloads' );
 my $dest = File::Spec->catpath( '', $dl_dir, $title );
 $dest =~ s{\.pdf$}{}i;
 
+
+if ( ! $start_page ) {
+	$start_page = 1;
+}
+
 my $descr = '"'.$title.'" ('.$total_pages.' pages)';
 if ( -d $dest ) {
+	my @page_files = glob( File::Spec->catfile( $dest, '*.jpg' ) );
+	if ( @page_files ) {
+		PAGE_FILE: foreach my $page_file ( reverse sort @page_files ) {
+			if ( -f $page_file ) {
+				if ( -s $page_file > 0 ) {
+					my ( $number ) = $page_file =~ m{([1-9]\d*)\.jpg$};
+					if ( $number ) {
+						$start_page = $number + 1;
+						last PAGE_FILE;
+					} elsif ( $debug ) {
+						say 'DEBUG - no number found in: '.$page_file;
+					}
+				} elsif ( $debug ) {
+					say 'DEBUG - zero size file: '.$page_file;
+				}
+			}
+		}
+	} elsif ( $debug ) {
+		say 'found no page files under: '.$dest;
+	}
 	say '';
-	say "WARNING - directory exists; will overwrite files under \"$dest\'";
+	if ( $start_page > 0 ) {
+		say 'WARN - directory exists; will resume at page '.$start_page.' under "'.$dest.'"';
+	} else {
+		say 'WARN - directory exists; will overwrite files under "'.$dest.'"';
+	}
 	print 'Press any key to continue > ';
 	<STDIN>;
 }
@@ -207,16 +275,22 @@ if ( ! -e $dest ) {
 
 say '';
 say 'Downloading '.$descr;
+say '  - starting on page '.$start_page;
+if ( $sleep > 0 ) {
+	say '  - sleeping '.$sleep.' seconds after each page';
+}
 say 'Please wait...';
+say '';
 
 
 my $start_time = time();
-foreach my $cur_page ( 1 .. $total_pages ) {
+foreach my $cur_page ( $start_page .. $total_pages ) {
 
 	my $page_padded = sprintf( '%0.3d', $cur_page );
 
 
 	my $img_file = File::Spec->catpath( '', $dest, 'file_'.$page_padded.'.jpg' );
+
 	
 	my $cmd = $wget.' -nv -q --output-document="'.$img_file.'" '.
 		' "http://image.issuu.com/'.$document_id.'/jpg/page_'.$cur_page.'.jpg"';
@@ -225,15 +299,16 @@ foreach my $cur_page ( 1 .. $total_pages ) {
 	my $exit_value = $? >> 8;
 	if ( $exit_value > 0 ) {
 		say 'ERROR - command failed: [ '.$cmd.' ]: '.$!;
+		say '==== output: ====';
 		say 'OUT - '.$_ for @output;
+		say '=================';
+		Carp::croak( 'command failed' );
+
 		Carp::croak( 'command failed' );
 	}
 	
 	if ( $cur_page % 10 == 0 ) {
 		say 'downloaded '.$page_padded.' / '.$total_pages.' pages (elapsed '.( time() - $start_time ).' seconds)';
-		if ( $sleep > 0 ) {
-			say 'sleeping '.$sleep.' seconds after each page';
-		}
 	}
 	if ( $sleep > 0 ) {
 		sleep( $sleep );
