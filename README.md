@@ -15,7 +15,7 @@ This command will also convert all .jpg files to .pdf, after prompting
 the user to continue.
 
 This will result in all pages as pdfs, which can then be combined into
-a single file using a program like "pdf split and merge basic".
+a single file using a program like [pdf split and merge basic](http://www.pdfsam.org/).
 
 
 ## DEPENDENCIES
