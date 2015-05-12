@@ -11,6 +11,7 @@ use feature ':5.10';
 use Cwd;
 use Getopt::Long;
 use Pod::Usage;
+use FindBin;
 use File::Spec;
 
 
@@ -31,10 +32,41 @@ $wd ||= '';
 chomp $wd;
 
 if ( ! $wd ) {
-	say 'Enter directory containing *.jpg files to ';
-	say 'combine into a single PDF file: ';
+	my $dl_dir = File::Spec->catpath( '', $FindBin::Bin, 'downloads' );
+	my $glob_str = File::Spec->catpath( '', ''.$dl_dir.'', '*' );
+	my @found_dirs = glob( $glob_str );
+	if ( ! @found_dirs ) {
+		say 'no dirs found to select from';
+		say '(glob string: '.$glob_str.')';
+		die( 'no dir to work on; exiting' );
+	}
+	say 'Enter the number of a directory to combine ';
+	say 'into a single PDF file: ';
+
+	my %dir_by_count = ();
+	my $count = 0;
+	my $bin_length = length $FindBin::Bin;
+	foreach my $dir ( @found_dirs ) {
+		if ( -d $dir ) {
+			my @jpg_files = glob( File::Spec->catpath( '', $dir, '*.jpg' ) );
+			if ( @jpg_files ) {
+				$count++;
+				$dir_by_count{ $count } = $dir;
+				my $show_dir = substr $dir, $bin_length + 1;
+				say ' '.$count.' ) '.$show_dir;
+			}
+		}
+	}
 	print '> ';
-	$wd = <STDIN> || '';
+	my $selected_count = <STDIN> || '';
+	chomp $selected_count;
+	$selected_count =~ s/^\s+//;;
+	$selected_count =~ s/\s+$//;;
+
+	$wd = $dir_by_count{ $selected_count } || '';
+	if ( ! $wd ) {
+		say 'ERROR - no dir with number '.$selected_count;
+	}
 	chomp $wd;
 }
 
