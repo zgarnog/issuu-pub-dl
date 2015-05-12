@@ -393,13 +393,18 @@ sub _get_document {
 	
 	
 	my $start_time = time();
-	foreach my $cur_page ( $start_page .. $total_pages ) {
+	PAGE: foreach my $cur_page ( $start_page .. $total_pages ) {
 	
 		my $page_padded = sprintf( '%0.3d', $cur_page );
 	
 	
 		my $img_file = File::Spec->catpath( '', $dest, 'file_'.$page_padded.'.jpg' );
 	
+		my $size = -s $img_file;
+		if ( $size > 0 ) {
+			say $page_padded.' img file exists: '.$size.' b';
+			next PAGE;
+		}
 		
 		my $cmd = $wget_bin.' -nv -q --output-document="'.$img_file.'" '.
 			' "http://image.issuu.com/'.$document_id.'/jpg/page_'.$cur_page.'.jpg"';
