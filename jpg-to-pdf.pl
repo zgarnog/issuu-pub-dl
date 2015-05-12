@@ -14,6 +14,12 @@ use Pod::Usage;
 use File::Spec;
 
 
+my $convert_program = 'convert';
+my $convert_opts = ' -density 300';
+#my $convert_opts = ' -density 600 '; # optional
+
+
+
 my ( $wd ) = @ARGV;
 $wd ||= '';
 my $output_file;
@@ -54,9 +60,6 @@ if ( $output_file ) {
 	$output_file .= '.pdf';
 }
 
-my $convert_program = 'convert';
-my $convert_opts = '';
-#my $convert_opts = ' -density 600 '; # optional
 
 # remove any quotes
 $wd =~ s/^"//;
@@ -68,7 +71,7 @@ my $start_time = time();
 my $cmd = join( ' ', (
 	$convert_program,
 	$convert_opts,
-	'"'.$wd.'"\*.jpg',
+	File::Spec->catpath( '', '"'.$wd.'"', '*.jpg' ),
 	'"'.$output_file.'"',
 ) );
 
