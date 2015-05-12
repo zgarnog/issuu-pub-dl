@@ -61,6 +61,11 @@ if ( ! $wd ) {
 			}
 		}
 	}
+
+	if ( ! %dir_by_count ) {
+		die( 'ERROR - no dirs with .jpg files found under '.$dl_dir ); 
+	}
+
 	print '> ';
 	my $selected_count = <STDIN> || '';
 	chomp $selected_count;
