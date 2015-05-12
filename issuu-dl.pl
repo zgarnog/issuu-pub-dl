@@ -42,7 +42,7 @@ my $debug;
 my $url;
 my $document_id;
 my $sleep;
-my $start_page;
+my $in_start_page;
 my $urls_list_file;
 my $help;
 GetOptions( 
@@ -51,7 +51,7 @@ GetOptions(
 	'list=s'  	=> \$urls_list_file,
 	'id=s'		=> \$document_id,
 	'sleep=i' 	=> \$sleep,
-	'start=i' 	=> \$start_page,
+	'start=i' 	=> \$in_start_page,
 	'help'		=> \$help,
 );
 
@@ -192,143 +192,6 @@ if ( $urls_list_file ) {
 }
 
 
-sub _get_document {
-	my $title = shift;
-	my $document_id = shift;
-	my $total_pages = shift;
-	my $o_ref = shift;
-	
-	my %o = ();
-	if ( ref $o_ref eq 'HASH' ) {
-		%o = %$o_ref;
-	}
-
-
-	if ( ! $title || ! $document_id || ! $total_pages ) {
-		say '';
-		die( 'ERROR - Missing one of : title, document_id, total_pgaes' );
-	}
-	if ( $total_pages !~ /^\d+$/ ) {
-		say '';
-		die( 'ERROR - total_pages should be an integer' );
-	}
-
-
-
-	my $dest = File::Spec->catpath( '', $dl_dir, $title );
-	$dest =~ s{\.pdf$}{}i;
-	
-	
-	if ( ! $start_page ) {
-		$start_page = 1;
-	}
-	
-	my $descr = '"'.$title.'" ('.$total_pages.' pages)';
-	if ( -d $dest ) {
-		my @page_files = glob( File::Spec->catfile( $dest, '*.jpg' ) );
-		if ( @page_files ) {
-			PAGE_FILE: foreach my $page_file ( reverse sort @page_files ) {
-				if ( -f $page_file ) {
-					if ( -s $page_file > 0 ) {
-						my ( $number ) = $page_file =~ m{([1-9]\d*)\.jpg$};
-						if ( $number ) {
-							$start_page = $number + 1;
-							last PAGE_FILE;
-						} elsif ( $debug ) {
-							say 'DEBUG - no number found in: '.$page_file;
-						}
-					} elsif ( $debug ) {
-						say 'DEBUG - zero size file: '.$page_file;
-					}
-				}
-			}
-		} elsif ( $debug ) {
-			say 'found no page files under: '.$dest;
-		}
-		say '';
-		if ( $start_page > 0 ) {
-			say 'WARN - directory exists; will resume at page '.$start_page.' under';
-			say 'WARN - "'.$dest.'"';
-		} else {
-			say 'WARN - directory exists; could overwrite files under';
-			say 'WARN - "'.$dest.'"';
-		}
-		if ( ! $o{auto} ) {
-			print 'Press any key to continue > ';
-			<STDIN>;
-		}
-	}
-
-
-	if ( ! -e $dest ) {
-		File::Path::mkpath( $dest );
-	}
-
-
-
-	say '';
-	say 'Downloading '.$descr;
-	say '  - starting on page '.$start_page;
-	if ( $sleep > 0 ) {
-		say '  - sleeping '.$sleep.' seconds after each page';
-	}
-	say 'Please wait...';
-	say '';
-	
-	
-	my $start_time = time();
-	foreach my $cur_page ( $start_page .. $total_pages ) {
-	
-		my $page_padded = sprintf( '%0.3d', $cur_page );
-	
-	
-		my $img_file = File::Spec->catpath( '', $dest, 'file_'.$page_padded.'.jpg' );
-	
-		
-		my $cmd = $wget_bin.' -nv -q --output-document="'.$img_file.'" '.
-			' "http://image.issuu.com/'.$document_id.'/jpg/page_'.$cur_page.'.jpg"';
-	
-		my @output = qx( $cmd );
-		my $exit_value = $? >> 8;
-		if ( $exit_value > 0 ) {
-			say 'ERROR - command failed: [ '.$cmd.' ]: '.$!;
-			say '==== output: ====';
-			say 'OUT - '.$_ for @output;
-			say '=================';
-			Carp::croak( 'command failed' );
-	
-			Carp::croak( 'command failed' );
-		}
-		
-		if ( $cur_page % 10 == 0 ) {
-			say 'downloaded '.$page_padded.' / '.$total_pages.' pages (elapsed '.( time() - $start_time ).' seconds)';
-		}
-		if ( $sleep > 0 ) {
-			sleep( $sleep );
-		}
-	}
-		
-	say '';
-	say 'Done; downloaded '.$total_pages.' pages (elapsed '.( time() - $start_time ).' seconds)';
-	say '';
-	
-	
-	my $cmd = 'perl '.$FindBin::Bin.'/jpg-to-pdf.pl "'.$dest.'"';
-	
-	my $CMD_OUT = undef;
-	if ( ! ( open $CMD_OUT, '-|', $cmd.' 2>&1 ' ) ) {
-		say 'INFO - command: '.$cmd;
-		Carp::croak( 'failed to run command: '.$! );
-	}
-	
-	while ( my $line = <$CMD_OUT> ) {
-		chomp $line;
-		say '('.$$.') '.$line;
-	}
-	
-}
-
-
 ######## SUBROUTINES
 
 
@@ -425,6 +288,161 @@ sub _get_doc_data_by_url {
 	return ( $title, $document_id, $total_pages );
 }
 
+
+
+
+sub _get_document {
+	my $title = shift;
+	my $document_id = shift;
+	my $total_pages = shift;
+	my $o_ref = shift;
+
+
+	if ( $debug ) {
+		say 'DEBUG - _get_document( "'.$title.'", "'.$document_id.'", '.$total_pages.' );';
+	}
+
+	
+	my %o = ();
+	if ( ref $o_ref eq 'HASH' ) {
+		%o = %$o_ref;
+	}
+
+
+	if ( ! $title || ! $document_id || ! $total_pages ) {
+		say '';
+		die( 'ERROR - Missing one of : title, document_id, total_pgaes' );
+	}
+	if ( $total_pages !~ /^\d+$/ ) {
+		say '';
+		die( 'ERROR - total_pages should be an integer' );
+	}
+
+
+
+	my $dest = File::Spec->catpath( '', $dl_dir, $title );
+	$dest =~ s{\.pdf$}{}i;
+	
+	
+	my $start_page = $in_start_page;
+	if ( ! $start_page ) {
+		$start_page = 1;
+	}
+	
+	my $descr = '"'.$title.'" ('.$total_pages.' pages)';
+	if ( -d $dest ) {
+		my @page_files = glob( File::Spec->catfile( $dest, '*.jpg' ) );
+		if ( @page_files ) {
+			PAGE_FILE: foreach my $page_file ( reverse sort @page_files ) {
+				if ( -f $page_file ) {
+					if ( -s $page_file > 0 ) {
+						my ( $number ) = $page_file =~ m{([1-9]\d*)\.jpg$};
+						if ( $number ) {
+							$start_page = $number + 1;
+							last PAGE_FILE;
+						} elsif ( $debug ) {
+							say 'DEBUG - no number found in: '.$page_file;
+						}
+					} elsif ( $debug ) {
+						say 'DEBUG - zero size file: '.$page_file;
+					}
+				}
+			}
+		} elsif ( $debug ) {
+			say 'found no page files under: '.$dest;
+		}
+		say '';
+		if ( $start_page > 0 ) {
+			say 'WARN - directory exists; will resume at page '.$start_page.' under';
+			say 'WARN - "'.$dest.'"';
+		} else {
+			say 'WARN - directory exists; could overwrite files under';
+			say 'WARN - "'.$dest.'"';
+		}
+		if ( ! $o{auto} ) {
+			print 'Press any key to continue > ';
+			<STDIN>;
+		}
+	}
+
+
+	if ( $start_page >= $total_pages ) {
+		if ( $debug ) {
+			say 'DEBUG - start page '.$start_page.' >= '.$total_pages.' (total)';
+		}
+		say 'no pages left to download; not downloading or creating pdf';
+		say '  for '.$dest;
+		return 0;
+	}
+
+
+	if ( ! -e $dest ) {
+		File::Path::mkpath( $dest );
+	}
+
+
+
+	say '';
+	say 'Downloading '.$descr;
+	say '  - starting on page '.$start_page;
+	if ( $sleep > 0 ) {
+		say '  - sleeping '.$sleep.' seconds after each page';
+	}
+	say 'Please wait...';
+	say '';
+	
+	
+	my $start_time = time();
+	foreach my $cur_page ( $start_page .. $total_pages ) {
+	
+		my $page_padded = sprintf( '%0.3d', $cur_page );
+	
+	
+		my $img_file = File::Spec->catpath( '', $dest, 'file_'.$page_padded.'.jpg' );
+	
+		
+		my $cmd = $wget_bin.' -nv -q --output-document="'.$img_file.'" '.
+			' "http://image.issuu.com/'.$document_id.'/jpg/page_'.$cur_page.'.jpg"';
+	
+		my @output = qx( $cmd );
+		my $exit_value = $? >> 8;
+		if ( $exit_value > 0 ) {
+			say 'ERROR - command failed: [ '.$cmd.' ]: '.$!;
+			say '==== output: ====';
+			say 'OUT - '.$_ for @output;
+			say '=================';
+			Carp::croak( 'command failed' );
+	
+			Carp::croak( 'command failed' );
+		}
+		
+		if ( $cur_page % 10 == 0 ) {
+			say 'downloaded '.$page_padded.' / '.$total_pages.' pages (elapsed '.( time() - $start_time ).' seconds)';
+		}
+		if ( $sleep > 0 ) {
+			sleep( $sleep );
+		}
+	}
+		
+	say '';
+	say 'Done; downloaded '.$total_pages.' pages (elapsed '.( time() - $start_time ).' seconds)';
+	say '';
+	
+	
+	my $cmd = 'perl '.$FindBin::Bin.'/jpg-to-pdf.pl "'.$dest.'"';
+	
+	my $CMD_OUT = undef;
+	if ( ! ( open $CMD_OUT, '-|', $cmd.' 2>&1 ' ) ) {
+		say 'INFO - command: '.$cmd;
+		Carp::croak( 'failed to run command: '.$! );
+	}
+	
+	while ( my $line = <$CMD_OUT> ) {
+		chomp $line;
+		say '('.$$.') '.$line;
+	}
+	
+}
 
 
 1;
