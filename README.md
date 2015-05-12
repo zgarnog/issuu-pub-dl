@@ -8,7 +8,8 @@ You can now download a document's images by its URL with
 one command, without searching through the source of the 
 web page. 
 
-On Windows, this can be done by running ```issuu-dl.bat```.
+On Windows, this can be done by running ```issuu-dl```.
+This is the file with the Issuu icon.
 
 On linux, this program is untested but may work
 by running: ```issuu-dl.pl``` or ```perl issuu-dl.pl```
