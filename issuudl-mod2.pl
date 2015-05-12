@@ -37,12 +37,14 @@ GetOptions(
 );
 
 
-my ( $title, $total_pages ) = @ARGV;
 
 my $wget = './wget.exe';
 
+my $title = '';
+my $total_pages = '';
+
 if ( $debug ) {
-	say 'URL: ['.( $url || 'undef' ).']';
+	say 'URL: '.( $url || 'undef' );
 }
 if ( $url ) {
 	if ( $url !~ m{https?://} ) {
@@ -57,7 +59,7 @@ if ( $url ) {
 	my @output = qx( $cmd );
 	my $exit_value = $? >> 8;
 	if ( $exit_value > 0 ) {
-		say 'ERROR - command failed: ['.$cmd.']'.$!;
+		say 'ERROR - command failed: |'.$cmd.'| :'.$!;
 		say 'OUT - '.$_ for @output;
 		Carp::croak( 'command failed' );
 	}
@@ -67,7 +69,7 @@ if ( $url ) {
 	
 	
 	if ( $debug ) {
-		say 'got content ['.length( $content ).' chars] from URL';
+		say 'got content ('.length( $content ).' chars) from URL';
 	}
 
 	my ( $extra, $json ) = split /window.issuuDataCache\s+=\s+/s, $content;
@@ -112,9 +114,9 @@ if ( $url ) {
 		}
 
 		if ( $debug ) {
-			say 'loaded [title]['.( $title || 'undef' ).']';
-			say 'loaded [document_id]['.( $document_id || 'undef' ).']';
-			say 'loaded [total_pages]['.( $total_pages || 'undef' ).']';
+			say 'loaded title: '.( $title || 'undef' );
+			say 'loaded document_id: '.( $document_id || 'undef' );
+			say 'loaded total_pages: '.( $total_pages || 'undef' );
 		}
 
 		
@@ -124,7 +126,9 @@ if ( $url ) {
 
 }
 
-
+if ( ! $title || ! $document_id || ! $total_pages ) {
+	( $title, $total_pages, $document_id ) = @ARGV;
+}
 
 
 if ( ! $title || ! $document_id || ! $total_pages ) {
@@ -142,8 +146,11 @@ if ( $total_pages !~ /^\d+$/ ) {
 
 my $dest = File::Spec->catpath( '', 'downloads', $title );
 
+my $descr = '"'.$title.'" ('.$total_pages.' pages)';
 say '';
-say "WARNING - will overwrite files under [$dest]";
+say 'Will Download '.$descr.'.';
+say '';
+say "WARNING - will overwrite files under \"$dest\'";
 print 'Press any key to continue > ';
 <STDIN>;
 
@@ -155,7 +162,7 @@ if ( ! -e $dest ) {
 
 
 say '';
-say 'Downloading ['.$title.']['.$pages_count.' pages]. Please wait...';
+say 'Downloading '.$descr.'. Please wait...';
 
 
 foreach my $cur_page ( 1 .. $total_pages ) {
@@ -163,7 +170,7 @@ foreach my $cur_page ( 1 .. $total_pages ) {
 	my $page_padded = sprintf( '%0.3d', $cur_page );
 
 	if ( $cur_page % 10 == 0 ) {
-	  say 'on page ['.$page_padded.' / '.$total_pages.' ]';
+	  say 'on page '.$page_padded.' / '.$total_pages;
 	}
 
 	my $img_file = File::Spec->catpath( '', $dest, 'file_'.$page_padded.'.jpg' );
@@ -174,7 +181,7 @@ foreach my $cur_page ( 1 .. $total_pages ) {
 	my @output = qx( $cmd );
 	my $exit_value = $? >> 8;
 	if ( $exit_value > 0 ) {
-		say 'ERROR - command failed: ['.$cmd.']'.$!;
+		say 'ERROR - command failed: |'.$cmd.'|: '.$!;
 		say 'OUT - '.$_ for @output;
 		Carp::croak( 'command failed' );
 	}
@@ -183,7 +190,7 @@ foreach my $cur_page ( 1 .. $total_pages ) {
 
 	
 say '';
-say 'Done; downloaded ['.$total_pages.'] pages';
+say 'Done; downloaded '.$total_pages.' pages';
 
 say '';
 say 'Press any key to exit...';
@@ -197,10 +204,10 @@ __END__
 =head1 SYNOPSIS
 
   by URL:
-    issuudl-mod2.pl [title] [total_pages] --url=[string]
+    issuudl-mod2.pl --url=[string] [options]
 
   by document id:
-    issuudl-mod2.pl [title] [total_pages] --document-id=[string]
+    issuudl-mod2.pl [title] [total_pages] [document_id] [options]
 
   example: 
     issuudl-mod2.pl "The Document Title" aaabbccccaoeuaeou-23434242 201
@@ -209,6 +216,8 @@ __END__
     example:
       "./downloads/The Document Title"
 
+  options:
+    --debug print extra debug output
 
 =head1 CHANGES
 
