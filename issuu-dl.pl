@@ -31,7 +31,7 @@ say '';
 say '----------------------------';
 say 'Issuu Publication Downloader (issuu-dl.pl)';
 say '----------------------------';
-
+ 
 
 my $debug;
 my $url;
