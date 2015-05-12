@@ -20,15 +20,25 @@ requires Image Magick
 =cut
 
 
+$| = 1; # autoflush STDOUT
 
 
+# system
 use strict;
 use warnings;
 use feature ':5.10';
-
 use Cwd;
+use Getopt::Long;
 
-my $wd = Cwd::getcwd();
+my $wd;
+GetOptions(
+	'dir=s'	=> \$wd,
+);
+
+
+if ( ! $wd ) {
+	$wd = Cwd::getcwd();
+}
 
 my $convert_program = 'convert';
 
@@ -44,7 +54,7 @@ say 'This program will convert '.scalar( @jpg_files ).' jpg files to pdf';
 say 'from: ['.$glob_string.']';
 say 'using ImageMagick '.$convert_program;
 say '';
-print 'press CTRL-C to abort or Enter to continue > ';
+say 'press CTRL-C to abort or Enter to continue > ';
 <STDIN>;
 
 my $count = 0;

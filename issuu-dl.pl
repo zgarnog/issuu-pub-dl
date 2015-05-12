@@ -159,6 +159,7 @@ if ( ! -e $dest ) {
 	File::Path::mkpath( $dest );
 }
 
+if ( 0 ) {
 
 
 say '';
@@ -188,9 +189,30 @@ foreach my $cur_page ( 1 .. $total_pages ) {
 	
 }
 
+}
 	
 say '';
 say 'Done; downloaded '.$total_pages.' pages';
+
+#say 'Can now convert .jpg files to .pdf';
+#say 'Press enter to convert or CTRL-C to abort > ';
+#<STDIN>;
+
+my $cmd = 'perl '.$FindBin::Bin.'/jpg-to-pdf.pl --dir="'.$dest.'"';
+
+my $CMD_OUT = undef;
+if ( ! ( open $CMD_OUT, '-|', $cmd.' 2>&1 ' ) ) {
+	say 'INFO - command: '.$cmd;
+	Carp::croak( 'failed to run command: '.$! );
+}
+
+while ( my $line = <$CMD_OUT> ) {
+	chomp $line;
+	say 'OUT - '.$line;
+}
+
+
+
 
 say '';
 say 'Press any key to exit...';
