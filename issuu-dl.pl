@@ -105,7 +105,7 @@ if ( ! $sleep ) {
 
 
 if ( ! $sleep ) {
-	say 'Enter seconds to sleep after each request (0)';
+	say 'Enter seconds to sleep after each page (0)';
 	print '> ';
 	$sleep = <STDIN>;
 	chomp $sleep;
