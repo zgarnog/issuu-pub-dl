@@ -40,12 +40,17 @@ say '----------------------------';
 my $debug;
 my $url;
 my $document_id;
+my $sleep;
 GetOptions( 
 	'debug'	=> \$debug,
 	'url=s'	=> \$url,
 	'id=s'	=> \$document_id,
+	'sleep=i'	=> \$sleep,
 );
 
+if ( ! $sleep ) {
+	$sleep = 0;
+}
 
 if ( ! $url and ! @ARGV ) {
 	say 'Enter issuu document URL (blank to skip): ';
@@ -58,6 +63,20 @@ if ( ! $url and ! @ARGV ) {
 	} else {
 		say 'No URL received.';
 	}
+	if ( ! $sleep ) {
+		say 'Enter seconds to sleep after each request (0)';
+		print '> ';
+		$sleep = <STDIN>;
+		chomp $sleep;
+		$sleep =~ s/^\s+//;
+		$sleep =~ s/\s+$//;
+
+		if ( ! $sleep ) {
+			$sleep = 0;
+		} elsif ( $sleep !~ /^\d+$/ ) {
+			die( 'ERROR - sleep should be an integer (digits only), got: '.$sleep );
+		}
+	}	
 }
 
 
@@ -187,7 +206,8 @@ if ( ! -e $dest ) {
 
 
 say '';
-say 'Downloading '.$descr.'. Please wait...';
+say 'Downloading '.$descr;
+say 'Please wait...';
 
 
 my $start_time = time();
@@ -210,7 +230,13 @@ foreach my $cur_page ( 1 .. $total_pages ) {
 	}
 	
 	if ( $cur_page % 10 == 0 ) {
-	  say 'downloaded '.$page_padded.' / '.$total_pages.' pages (elapsed '.( time() - $start_time ).' seconds)';
+		say 'downloaded '.$page_padded.' / '.$total_pages.' pages (elapsed '.( time() - $start_time ).' seconds)';
+		if ( $sleep > 0 ) {
+			say 'sleeping '.$sleep.' seconds after each page';
+		}
+	}
+	if ( $sleep > 0 ) {
+		sleep( $sleep );
 	}
 }
 	
@@ -266,7 +292,9 @@ issuu-dl.pl
       "./downloads/The Document Title"
 
   options:
-    --debug print extra debug output
+    --debug            print extra debug output
+    --sleep=[integer]  (default: 0) sleep for seconds after downloading 
+                       each page, to decrease the load on the network
 
 =head1 CHANGES
 
