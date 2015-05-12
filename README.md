@@ -30,10 +30,44 @@ clean them up.
 
 ### Converting Images to PDF
 
-To convert images to PDF manually, on Windows, you can use 
-**jpg-to-pdf** (or on linux, **jpg-to-pdf.pl**). This is the 
-program run by **issuu-dl** to convert multiple .jpg images to a
-single .pdf file.
+After downloading, you may want to re-convert images to PDF.
+On Windows, you can use **jpg-to-pdf**. On linux use **perl jpg-to-pdf.pl**. 
+This is the program run by **issuu-dl** to convert multiple .jpg images 
+to a single .pdf file.
+
+
+## DEPENDENCIES
+
+  - Perl   ( tested with v5.14.2 )
+    - under Windows: [DWIM Perl](http://dwimperl.com/)
+    - under cygwin:  cygwin perl
+  - [Image Magick](http://www.imagemagick.org/) ( tested with 6.9.1-2 Q16 x64 )
+    - this is used for converting from .jpg to .pdf
+
+### Testing Done
+
+  - tested under Windows 7, 
+    via command prompt and explorer
+  - also tested under Windows 7 cygwin 64-bit 
+    linux-like command-line
+
+  - tested with Perl v5.14.2 
+  - tested with Image Magick 6.9.1-2 Q16 x64
+
+## URLs
+
+[zgarnog on github](https://github.com/zgarnog)
+
+[equagunn on blogspot](http://eqagunn.blogspot.com/)
+
+
+## Further Notes
+
+The .pl files contain documentation about their usage including
+options not described here.
+
+
+### ImageMagick Convert Options
 
 You can also use ImageMagick **convert** command directly,
 in a command prompts or shell, by using a command similar to one
@@ -57,35 +91,6 @@ convert path_to_document_dir/*.jpg document_name.pdf
 convert -density 300 path_to_document_dir/*.jpg document_name.pdf
 ```
 
-
-## Notes
-
-The .pl files contain documentation about their usage including
-options not described here.
-
-
-## DEPENDENCIES
-
-  - Perl 
-    - example: [DWIM Perl](http://dwimperl.com/)
-  - [Image Magick](http://www.imagemagick.org/) 
-    - this is used for converting from .jpg to .pdf
-
-### Testing Done
-
-  - tested under Windows 7, 
-    via command prompt and explorer
-  - also tested under Windows 7 cygwin 64-bit 
-    linux-like command-line
-
-  - tested with Perl v5.14.2 
-  - tested with Image Magick 6.9.1-2 Q16 x64
-
-## URLs
-
-[zgarnog on github](https://github.com/zgarnog)
-
-[equagunn on blogspot](http://eqagunn.blogspot.com/)
 
 
 # Issuu Publication Downloader v1.0 (2012-03-18)
