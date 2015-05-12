@@ -167,7 +167,7 @@ if ( $total_pages !~ /^\d+$/ ) {
 
 
 
-my $dest = File::Spec->catpath( '', 'downloads', $title );
+my $dest = File::Spec->catpath( '', $FindBin::Bin, 'downloads', $title );
 $dest =~ s{\.pdf$}{}i;
 
 my $descr = '"'.$title.'" ('.$total_pages.' pages)';
@@ -217,10 +217,8 @@ foreach my $cur_page ( 1 .. $total_pages ) {
 	
 say '';
 say 'Done; downloaded '.$total_pages.' pages (elapsed '.( time() - $start_time ).' seconds)';
+say '';
 
-#say 'Can now convert .jpg files to .pdf';
-#say 'Press enter to convert or CTRL-C to abort > ';
-#<STDIN>;
 
 my $cmd = 'perl '.$FindBin::Bin.'/jpg-to-pdf.pl --dir="'.$dest.'"';
 
@@ -232,7 +230,7 @@ if ( ! ( open $CMD_OUT, '-|', $cmd.' 2>&1 ' ) ) {
 
 while ( my $line = <$CMD_OUT> ) {
 	chomp $line;
-	say 'OUT - '.$line;
+	say '('.$$.') '.$line;
 }
 
 

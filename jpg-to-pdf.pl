@@ -14,20 +14,32 @@ use Pod::Usage;
 use File::Spec;
 
 
-my $wd;
+my ( $wd ) = @ARGV;
+$wd ||= '';
 my $output_file;
 GetOptions(
-	'dir=s'	=> \$wd,
 	'output=s'	=> \$output_file,
 );
 
 $wd ||= '';
 chomp $wd;
 
-my $wd_from_option = 1;
 if ( ! $wd ) {
-	$wd_from_option = 0;
-	$wd = Cwd::getcwd();
+	say 'Enter directory containing *.jpg files to ';
+	say 'combine into a single PDF file: ';
+	print '> ';
+	$wd = <STDIN> || '';
+	chomp $wd;
+}
+
+
+if ( ! $wd ) {
+	say 'ERROR - missing directory to work on';
+	Pod::Usage::pod2usage( ' ' ); # prints SYNOPSIS and exits
+}
+if ( ! -d $wd ) {
+	say 'ERROR - directory not found: '.$wd;
+	Pod::Usage::pod2usage( ' ' ); # prints SYNOPSIS and exits
 }
 
 if ( $output_file ) {
@@ -43,19 +55,23 @@ if ( $output_file ) {
 }
 
 my $convert_program = 'convert';
+my $convert_opts = '';
+#my $convert_opts = ' -density 600 '; # optional
 
 # remove any quotes
 $wd =~ s/^"//;
 $wd =~ s/"$//;
 
-my $glob_string = File::Spec->catpath( '', '"'.$wd.'"', '*.jpg' );
-my @files = glob( $glob_string );
-if ( ! @files ) {
-	say 'ERROR - No *.jpg files found: '.$glob_string;
-	Pod::Usage::pod2usage( ' ' ); # prints SYNOPSIS and exits
-}
 
-my $cmd = $convert_program.' '.$glob_string.' "'.$output_file.'"';
+my $start_time = time();
+
+my $cmd = join( ' ', (
+	$convert_program,
+	$convert_opts,
+	'"'.$wd.'"\*.jpg',
+	'"'.$output_file.'"',
+) );
+
 say 'running: '.$cmd;
 my @output = qx( $cmd );
 my $exit_val = $? >> 8;
@@ -66,8 +82,13 @@ if ( $exit_val ) {
 	say 'OUT - '.$_ for @output;
 	die( 'command failed' );
 } else {
-	say 'created pdf: ['.$output_file.']';
+	if ( ! -f $output_file ) {
+		say 'command OK but PDF not found: '.$output_file;
+	} else {
+		say 'created pdf "'.$output_file.'" in '.( time() - $start_time ).' seconds';
+	}
 }
+
 
 
 __END__
@@ -78,9 +99,15 @@ jpg-to-pdf.pl
 
 =head1 SYNOPSIS
 
-  jpg-to-pdf.pl --dir=[directory]
+  This program will read all *.jpg files from the
+  given directory and create a single pdf file, 
+  by using ImageMagick.
 
-  jpg-to-pdf.pl --dir=[directory] --output=[filename.pdf]
+  jpg-to-pdf.pl # prompts for directory
+
+  jpg-to-pdf.pl [directory]
+
+  jpg-to-pdf.pl [directory] --output=[filename.pdf]
 
 =head1 AUTHOR
 

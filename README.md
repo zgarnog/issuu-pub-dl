@@ -2,7 +2,8 @@
 
 **v1.0 by eqagunn, modified by zgarnog**
 
-*This Version is a work in progress.*
+
+## Downloading A Document
 
 You can now download a document's images by its URL with 
 one command, without searching through the source of the 
@@ -19,6 +20,35 @@ This will show a prompt where you can paste an Issuu document URL.
 ```issuu-dl.pl``` will also convert all .jpg files to a single .pdf, 
 after prompting the user to continue. This is done using ImageMagick.
 
+### Converting Images to PDF
+
+To convert images to PDF manually, on Windows, you can use 
+```jpg-to-pdf``` (or on linux, ```jpg-to-pdf.pl```). This is the 
+program run by ```issuu-dl``` to convert multiple .jpg images to a
+single .pdf file.
+
+You can also use ImageMagick ```convert``` command directly,
+in a command prompts or shell, by using a command similar to one
+of the following variants. 
+
+See the [ImageMagick convert documentation](http://www.imagemagick.org/script/convert.php) for more options.
+
+#### Windows:
+
+```
+convert path_to_document_dir\*.jpg document_name.pdf
+
+convert -density 300 path_to_document_dir\*.jpg document_name.pdf
+```
+
+#### Linux:
+
+```
+convert path_to_document_dir/*.jpg document_name.pdf
+
+convert -density 300 path_to_document_dir/*.jpg document_name.pdf
+```
+
 
 ## Notes
 
@@ -30,7 +60,7 @@ run ```issuu-dl.pl``` or run ```perldoc issuu-dl.pl```.
   - Perl 
     - example: [DWIM Perl](http://dwimperl.com/)
   - [Image Magick](http://www.imagemagick.org/) 
-    - this is used for converting .jpg to .pdf
+    - this is used for converting from .jpg to .pdf
 
 ### Testing Completed
 
