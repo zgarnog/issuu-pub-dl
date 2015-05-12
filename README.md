@@ -1,5 +1,6 @@
-# README for Issuu Publication Downloader v1.3 by eqagunn modified by zgarnog
+# Issuu Publication Downloader v1.3 
 
+**v1.0 by eqagunn, modified by zgarnog**
 
 *This Version is a work in progress.*
 
@@ -26,7 +27,9 @@ issuu-dl.pl --url=[URL]
 [zgarnog on github](https://github.com/zgarnog)
 
 
-# README for Issuu Publication Downloader v1.0 (2012-03-18) by eqagunn
+# Issuu Publication Downloader v1.0 (2012-03-18)
+
+**by eqagunn**
 
 ## About Issuu:
 
