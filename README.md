@@ -1,5 +1,6 @@
 # README for Issuu Publication Downloader v1.3 by eqagunn modified by zgarnog
 
+
 *This Version is a work in progress.*
 
 You can now download a URL's images with one command, without viewing
@@ -11,6 +12,18 @@ issuu-dl.pl --url=[URL]
 
 ## DEPENDENCIES
 
+### issuu-dl.pl
+
+  - Perl
+
+### jpg-to-pdf.pl
+
+  - Image Magick
+
+
+## URLs
+
+[zgarnog on github](https://github.com/zgarnog)
 
 
 # README for Issuu Publication Downloader v1.0 (2012-03-18) by eqagunn
