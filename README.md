@@ -16,6 +16,7 @@ On linux, this program is untested but may work
 by running **issuu-dl.pl** or **perl issuu-dl.pl**
 
 This will show a prompt where you can paste an Issuu document URL.
+These are usually in the format *http://issuu.com/[user]/docs/[title]*.
 
 After downloading each page as a .jpg file, the program will
 convert all .jpg files to a single .pdf file.
