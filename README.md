@@ -4,15 +4,19 @@
 
 *This Version is a work in progress.*
 
-You can now download a URL's images with one command, without viewing
-the source of the web page:
+You can now download a document's images by its URL with 
+one command, without searching through the source of the 
+web page:
 
 ```
 perl issuu-dl.pl --url=[URL]
 ```
 
-This command will also convert all .jpg files to .pdf, after prompting
-the user to continue.
+Or, to receive a prompt to input a URL, just run ```issuu-dl.pl```.
+
+
+```issuu-dl.pl``` will also convert all .jpg files to .pdf, 
+after prompting the user to continue.
 
 This will result in all pages as pdfs, which can then be combined into
 a single file using a program like [PDF Split and Merge Basic](http://www.pdfsam.org/).
@@ -31,6 +35,8 @@ a single file using a program like [PDF Split and Merge Basic](http://www.pdfsam
 ## URLs
 
 [zgarnog on github](https://github.com/zgarnog)
+
+[equagunn on blogspot](http://eqagunn.blogspot.com/)
 
 
 # Issuu Publication Downloader v1.0 (2012-03-18)

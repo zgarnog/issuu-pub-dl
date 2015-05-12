@@ -20,11 +20,12 @@ use Pod::Usage;
 use Getopt::Long;
 use Text::Wrap;
 
-
 # lib/
 use lib $FindBin::Bin.'/lib/';
 use JSON;
 
+
+$| = 1; # autoflush STDOUT
 
 
 my $debug;
@@ -36,6 +37,19 @@ GetOptions(
 	'id=s'	=> \$document_id,
 );
 
+
+if ( ! $url and ! @ARGV ) {
+	say 'Enter URL (blank to skip): ';
+	print '> ';
+	$url = <STDIN> || '';
+	if ( $url ) {
+		chomp $url;
+		$url =~ s/^\s+//; # trim leading whitespace
+		$url =~ s/\s+$//; # trim trailing whitespace
+	} else {
+		say 'No URL received.';
+	}
+}
 
 
 my $wget = './wget.exe';
@@ -59,7 +73,7 @@ if ( $url ) {
 	my @output = qx( $cmd );
 	my $exit_value = $? >> 8;
 	if ( $exit_value > 0 ) {
-		say 'ERROR - command failed: |'.$cmd.'| :'.$!;
+		say 'ERROR - command failed: [ '.$cmd.' ] :'.$!;
 		say 'OUT - '.$_ for @output;
 		Carp::croak( 'command failed' );
 	}
@@ -182,7 +196,7 @@ foreach my $cur_page ( 1 .. $total_pages ) {
 	my @output = qx( $cmd );
 	my $exit_value = $? >> 8;
 	if ( $exit_value > 0 ) {
-		say 'ERROR - command failed: |'.$cmd.'|: '.$!;
+		say 'ERROR - command failed: [ '.$cmd.' ]: '.$!;
 		say 'OUT - '.$_ for @output;
 		Carp::croak( 'command failed' );
 	}
@@ -225,14 +239,17 @@ __END__
 
 =head1 SYNOPSIS
 
+  by prompts: (prompts for URL or other options)
+    issuu-dl.pl
+
   by URL:
-    issuudl-mod2.pl --url=[string] [options]
+    issuu-dl.pl --url=[string] [options]
 
   by document id:
-    issuudl-mod2.pl [title] [total_pages] [document_id] [options]
+    issuu-dl.pl [title] [total_pages] [document_id] [options]
 
   example: 
-    issuudl-mod2.pl "The Document Title" aaabbccccaoeuaeou-23434242 201
+    issuu-dl.pl "The Document Title" aaabbccccaoeuaeou-23434242 201
 
   The title will be used to create a directory under ./downloads
     example:
@@ -246,15 +263,18 @@ __END__
 Issuu Publication Downloader v1.0
   by eqagunn
 
-== mod2 == ( by zgarnog <zgarnog@yandex.com> )
-
- 2015-04-20
+ 2015-04-20 zgarnog
    - now uses leading zeros on numbers less than 100
 
- 2015-05-11
+ 2015-05-11 zgarnog
    - converted to perl script
    - can now pass URL and will get details needed from 
      URL automatically
+
+ 2015-05-12 zgarnog
+   - now calls other perl script to convert jpg to pdf,
+   - now asks for URL interactively if not received
+     via option.
 
 =cut
 
