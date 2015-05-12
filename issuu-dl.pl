@@ -219,7 +219,7 @@ say 'Done; downloaded '.$total_pages.' pages (elapsed '.( time() - $start_time )
 say '';
 
 
-my $cmd = 'perl '.$FindBin::Bin.'/jpg-to-pdf.pl --dir="'.$dest.'"';
+my $cmd = 'perl '.$FindBin::Bin.'/jpg-to-pdf.pl "'.$dest.'"';
 
 my $CMD_OUT = undef;
 if ( ! ( open $CMD_OUT, '-|', $cmd.' 2>&1 ' ) ) {

@@ -64,10 +64,11 @@ run ```issuu-dl.pl``` or run ```perldoc issuu-dl.pl```.
 
 ### Testing Completed
 
-  - tested with Perl v5.14.2), 
-  - tested with Image Magick 6.9.1-2 Q16 x64, under Windows 7
   - tested under Windows 7 command prompt and explorer
-    - also tested under Windows 7 cygwin 64-bit
+  - also tested under Windows 7 cygwin 64-bit
+
+  - tested with Perl v5.14.2), 
+  - tested with Image Magick 6.9.1-2 Q16 x64
 
 ## URLs
 
