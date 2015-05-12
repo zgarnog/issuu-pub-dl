@@ -32,7 +32,7 @@ my $wd = Cwd::getcwd();
 
 my $convert_program = 'convert';
 
-my $glob_string = '"'.$wd.'/*.jpg"';
+my $glob_string = $wd.'/*.jpg';
 my @jpg_files = glob( $glob_string );
 
 my $prog_name = $0;
@@ -42,7 +42,7 @@ say '['.$prog_name.']';
 say '';
 say 'This program will convert '.scalar( @jpg_files ).' jpg files to pdf';
 say 'from: ['.$glob_string.']';
-say 'using ImageMagick '.$convert_proogram;
+say 'using ImageMagick '.$convert_program;
 say '';
 print 'press CTRL-C to abort or Enter to continue > ';
 <STDIN>;
@@ -54,7 +54,7 @@ foreach my $jpg_file ( @jpg_files ) {
 	my $prefix = '['.$count.'] ';
 	my $pdf_file = $jpg_file;
 	if ( $pdf_file =~ s/\.jpg$/.pdf/i ) {
-		my $cmd = $convert_proogram.' "'.$jpg_file.'" "'.$pdf_file.'"';
+		my $cmd = $convert_program.' "'.$jpg_file.'" "'.$pdf_file.'"';
 		my @output = qx( $cmd );
 		my $exit_val = $? >> 8;
 		if ( $exit_val ) {
