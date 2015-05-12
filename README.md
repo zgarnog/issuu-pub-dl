@@ -8,7 +8,7 @@ You can now download a URL's images with one command, without viewing
 the source of the web page:
 
 ```
-issuu-dl.pl --url=[URL]
+perl issuu-dl.pl --url=[URL]
 ```
 
 This command will also convert all .jpg files to .pdf, after prompting
