@@ -20,6 +20,10 @@ This will show a prompt where you can paste an Issuu document URL.
 ```issuu-dl.pl``` will also convert all .jpg files to a single .pdf, 
 after prompting the user to continue. This is done using ImageMagick.
 
+.jpg files are saved under a directory named in the format ```./downloads/[title]```.
+
+.pdf files created are saved in a file named in the format ```./downloads/[title].pdf```.
+
 ### Converting Images to PDF
 
 To convert images to PDF manually, on Windows, you can use 
