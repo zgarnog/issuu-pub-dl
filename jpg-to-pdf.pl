@@ -11,6 +11,8 @@ use feature ':5.10';
 use Cwd;
 use Getopt::Long;
 use Pod::Usage;
+use File::Spec;
+
 
 my $wd;
 my $output_file;
@@ -46,7 +48,7 @@ my $convert_program = 'convert';
 $wd =~ s/^"//;
 $wd =~ s/"$//;
 
-my $glob_string = '"'.$wd.'"/*.jpg';
+my $glob_string = File::Spec->catpath( '', '"'.$wd.'"', '*.jpg' );
 my @files = glob( $glob_string );
 if ( ! @files ) {
 	say 'ERROR - No *.jpg files found: '.$glob_string;

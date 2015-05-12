@@ -25,11 +25,15 @@ use lib $FindBin::Bin.'/lib/';
 use JSON;
 
 
+use version; our $VERSION = qv('1.3.0');
+
+
+
 $| = 1; # autoflush STDOUT
 
 say '';
 say '----------------------------';
-say 'Issuu Publication Downloader (issuu-dl.pl)';
+say 'Issuu Publication Downloader (issuu-dl.pl v'.$VERSION.')';
 say '----------------------------';
  
 
@@ -170,9 +174,11 @@ my $descr = '"'.$title.'" ('.$total_pages.' pages)';
 say '';
 say 'Will Download '.$descr.'.';
 say '';
-say "WARNING - will overwrite files under \"$dest\'";
-print 'Press any key to continue > ';
-<STDIN>;
+if ( -d $dest ) {
+	say "WARNING - directory exists; will overwrite files under \"$dest\'";
+	print 'Press any key to continue > ';
+	<STDIN>;
+}
 
 
 if ( ! -e $dest ) {
@@ -185,13 +191,11 @@ say '';
 say 'Downloading '.$descr.'. Please wait...';
 
 
+my $start_time = time();
 foreach my $cur_page ( 1 .. $total_pages ) {
 
 	my $page_padded = sprintf( '%0.3d', $cur_page );
 
-	if ( $cur_page % 10 == 0 ) {
-	  say 'on page '.$page_padded.' / '.$total_pages;
-	}
 
 	my $img_file = File::Spec->catpath( '', $dest, 'file_'.$page_padded.'.jpg' );
 	
@@ -206,11 +210,13 @@ foreach my $cur_page ( 1 .. $total_pages ) {
 		Carp::croak( 'command failed' );
 	}
 	
+	if ( $cur_page % 10 == 0 ) {
+	  say 'downloaded '.$page_padded.' / '.$total_pages.' pages (elapsed '.( time() - $start_time ).' seconds)';
+	}
 }
-
 	
 say '';
-say 'Done; downloaded '.$total_pages.' pages';
+say 'Done; downloaded '.$total_pages.' pages (elapsed '.( time() - $start_time ).' seconds)';
 
 #say 'Can now convert .jpg files to .pdf';
 #say 'Press enter to convert or CTRL-C to abort > ';
@@ -240,6 +246,14 @@ say 'Press any key to exit...';
 1;
 
 __END__
+
+=head1 NAME
+
+issuu-dl.pl
+
+=head1 VERSION
+
+1.3.0
 
 =head1 SYNOPSIS
 
