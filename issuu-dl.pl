@@ -332,12 +332,16 @@ sub _get_document {
 	my $descr = '"'.$title.'" ('.$total_pages.' pages)';
 	if ( -d $dest ) {
 		my @page_files = glob( File::Spec->catfile( $dest, '*.jpg' ) );
+		my $highest_number = undef;
 		if ( @page_files ) {
 			PAGE_FILE: foreach my $page_file ( reverse sort @page_files ) {
 				if ( -f $page_file ) {
 					if ( -s $page_file > 0 ) {
 						my ( $number ) = $page_file =~ m{([1-9]\d*)\.jpg$};
 						if ( $number ) {
+							if ( ! defined $highest_number ) {
+								$highest_number = $number;
+							}
 							$start_page = $number + 1;
 							last PAGE_FILE;
 						} elsif ( $debug ) {
@@ -352,7 +356,12 @@ sub _get_document {
 			say 'found no page files under: '.$dest;
 		}
 		say '';
-		if ( $start_page > 0 ) {
+		if ( defined $highest_number && $highest_number >= $total_pages ) {
+			say 'WARN - directory exists with all pages; aborting download/pdf';
+			say 'WARN - "'.$dest.'"';
+			return;
+		}
+		if ( $start_page > 1 ) {
 			say 'WARN - directory exists; will resume at page '.$start_page.' under';
 			say 'WARN - "'.$dest.'"';
 		} else {
