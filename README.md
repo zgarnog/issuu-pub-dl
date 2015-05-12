@@ -9,29 +9,33 @@ You can now download a document's images by its URL with
 one command, without searching through the source of the 
 web page. 
 
-On Windows, this can be done by running ```issuu-dl```.
+On Windows, this can be done by running **issuu-dl**.
 This is the file with the Issuu icon.
 
 On linux, this program is untested but may work
-by running: ```issuu-dl.pl``` or ```perl issuu-dl.pl```
+by running **issuu-dl.pl** or **perl issuu-dl.pl**
 
 This will show a prompt where you can paste an Issuu document URL.
 
-```issuu-dl.pl``` will also convert all .jpg files to a single .pdf, 
-after prompting the user to continue. This is done using ImageMagick.
+After downloading each page as a .jpg file, the program will
+convert all .jpg files to a single .pdf file.
 
-.jpg files are saved under a directory named in the format ```./downloads/[title]```.
+### Directories
 
-.pdf files created are saved in a file named in the format ```./downloads/[title].pdf```.
+*.jpg* files are saved under a directory named in the format **downloads/[title]**.
+These files are left behind after the .pdf file is created; it is up to you to
+clean them up.
+
+*.pdf* files created are saved in a file named in the format **downloads/[title].pdf**.
 
 ### Converting Images to PDF
 
 To convert images to PDF manually, on Windows, you can use 
-```jpg-to-pdf``` (or on linux, ```jpg-to-pdf.pl```). This is the 
-program run by ```issuu-dl``` to convert multiple .jpg images to a
+**jpg-to-pdf** (or on linux, **jpg-to-pdf.pl**). This is the 
+program run by **issuu-dl** to convert multiple .jpg images to a
 single .pdf file.
 
-You can also use ImageMagick ```convert``` command directly,
+You can also use ImageMagick **convert** command directly,
 in a command prompts or shell, by using a command similar to one
 of the following variants. 
 
@@ -56,8 +60,9 @@ convert -density 300 path_to_document_dir/*.jpg document_name.pdf
 
 ## Notes
 
-To get options for sending a URL without a prompt, 
-run ```issuu-dl.pl``` or run ```perldoc issuu-dl.pl```.
+The .pl files contain documentation about their usage including
+options not described here.
+
 
 ## DEPENDENCIES
 
