@@ -20,13 +20,10 @@ a single file using a program like [pdf split and merge basic](http://www.pdfsam
 
 ## DEPENDENCIES
 
-### issuu-dl.pl
-
   - Perl
-
-### jpg-to-pdf.pl
-
-  - Image Magick
+    - example: [DWIM Perl](http://dwimperl.com/)
+  - [Image Magick](http://www.imagemagick.org/)
+    - (for converting .jpg to .pdf)
 
 
 ## URLs
