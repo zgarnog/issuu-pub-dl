@@ -15,8 +15,6 @@ use FindBin;
 use File::Spec;
 
 
-my $convert_program = 'convert';
-my $convert_opts = ' -density 300';
 #my $convert_opts = ' -density 600 '; # optional
 
 
@@ -24,9 +22,15 @@ my $convert_opts = ' -density 300';
 my ( $wd ) = @ARGV;
 $wd ||= '';
 my $output_file;
+my $density;
 GetOptions(
 	'output=s'	=> \$output_file,
+	'density=i'	=> \$density,
 );
+
+
+my $convert_program = 'convert';
+my $convert_opts = ' -density '.( $density || 300 );
 
 $wd ||= '';
 chomp $wd;
@@ -142,7 +146,11 @@ jpg-to-pdf.pl
 
   jpg-to-pdf.pl [directory]
 
-  jpg-to-pdf.pl [directory] --output=[filename.pdf]
+  jpg-to-pdf.pl [directory] [options]
+
+  options:
+    --output=[filename.pdf]
+    --density=[integer]
 
 =head1 AUTHOR
 
