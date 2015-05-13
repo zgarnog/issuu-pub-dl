@@ -35,6 +35,7 @@ say '';
 say '----------------------------';
 say 'Issuu Publication Downloader (issuu-dl.pl v'.$VERSION.')';
 say '----------------------------';
+say '';
  
 
 
@@ -53,7 +54,7 @@ GetOptions(
 	'sleep=i' 	=> \$sleep,
 	'start=i' 	=> \$in_start_page,
 	'help'		=> \$help,
-);
+) or die( 'ERROR - invalid options received' );
 
 
 if ( $help ) {
@@ -125,13 +126,16 @@ if ( $urls_list_file ) {
 		say 'DEBUG - list file: '.$urls_list_file;
 	}
 
-	my @urls_list = File::Slurp::read_file( $urls_list_file ) or
-		die( 'failed to read urls file "'.$urls_list_file.'": '.$! );
+	my @urls_list = File::Slurp::read_file( $urls_list_file ); # croaks on failure
+
+	if ( ! @urls_list ) {
+		die( 'WARN - urls file "'.$urls_list_file.'" is empty; nothing to do' );
+	}
 
 	chomp @urls_list;
 	say 'Loaded file with '.scalar( @urls_list ).' lines';
 	my $count = 0;
-	foreach my $url ( @urls_list ) {
+	URL: foreach my $url ( @urls_list ) {
 		$count++;
 
 		# trim whitespace
@@ -139,6 +143,11 @@ if ( $urls_list_file ) {
 		$url =~ s/\s+$//;
 
 		my $prefix = '['.$count.'] ';
+		if ( ! $url ) {
+			say $prefix.'WARN - skipping blank URL line';
+			next URL;
+		}
+
 		if ( $url !~ m{https?://} ) {
 			say $prefix.'WARN - URL may be invalid: '.$url.' ';
 		}
@@ -407,11 +416,12 @@ sub _get_document {
 		my $page_padded = sprintf( '%0.3d', $cur_page );
 	
 	
-		my $img_file = File::Spec->catpath( '', $dest, 'file_'.$page_padded.'.jpg' );
+		my $short_img_file = 'file_'.$page_padded.'.jpg';
+		my $img_file = File::Spec->catpath( '', $dest, $short_img_file );
 	
 		my $size = -s $img_file;
 		if ( $size > 0 ) {
-			say $page_padded.' img file exists: '.$size.' b';
+			say 'file exists, > 0 b, skip: '.$short_img_file.' '.$size.' b';
 			next PAGE;
 		}
 		
