@@ -21,7 +21,7 @@ The program will download each page as a .jpg file, and then
 convert all of the .jpg files to a single .pdf file.
 
 
-## Other Download Options
+### Other Options
 
 See [issuu-dl.md](issuu-dl.md) SYNOPSIS for options.
 
@@ -40,6 +40,11 @@ After downloading, you may want to re-convert images to PDF.
 On Windows, you can use **jpg-to-pdf**. On linux use **perl jpg-to-pdf.pl**. 
 This is the program run by **issuu-dl** to convert multiple .jpg images 
 to a single .pdf file.
+
+
+#### Other Options
+
+See [jpg-to-pdf.md](jpg-to-pdf.md) SYNOPSIS for options.
 
 
 ## DEPENDENCIES
