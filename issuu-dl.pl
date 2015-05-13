@@ -61,6 +61,7 @@ if ( $help ) {
 }
 
 my $wget_bin = './wget.exe'; # windows wget
+my $wget_is_win = 1;
 
 my $dl_dir = File::Spec->catpath( '', $FindBin::Bin, 'downloads' );
 
@@ -81,14 +82,17 @@ if ( $debug ) {
 
 if ( $os ne 'windows' ) {
 	# look for linux/cygwin wget
-	my @output = qx( which wget );
+	my @output = qx( which wget 2>&1 );
 	my $exit_value = $? >> 8;
 	if ( $exit_value == 0 and @output and $output[0] ) {
 		chomp @output;
 		$wget_bin = $output[0];
+		$wget_is_win = 0;
 		if ( $debug ) {
 			say 'found '.$os.' wget: '.$wget_bin;
 		}
+	} elsif ( $os ne 'cygwin' ) {
+		die( 'ERROR - failed to find wget in path' );
 	}
 } elsif ( $debug ) {
 	say 'using '.$os.' wget: '.$wget_bin;
@@ -211,7 +215,12 @@ sub _get_doc_data_by_url {
 		my $temp_file = 'temp-'.time().'.html';
 	
 		my $cmd = $wget_bin.' -nv -q --output-document="'.$temp_file.'" '.
-			' "'.$url.'" ';
+				' "'.$url.'" ';
+	
+		if ( $wget_is_win and $os eq 'cygwin' ) {
+			$cmd = $wget_bin.' -nv -q --output-document="'._path_cyg_to_win( $temp_file ).'" '.
+				' "'.$url.'" ';
+		}
 	
 		my @output = qx( $cmd );
 		my $exit_value = $? >> 8;
@@ -409,7 +418,7 @@ sub _get_document {
 	
 		my $img_file = File::Spec->catpath( '', $dest, 'file_'.$page_padded.'.jpg' );
 	
-		my $size = -s $img_file;
+		my $size = ( -s $img_file ) || 0;
 		if ( $size > 0 ) {
 			say $page_padded.' img file exists: '.$size.' b';
 			next PAGE;
@@ -417,6 +426,12 @@ sub _get_document {
 		
 		my $cmd = $wget_bin.' -nv -q --output-document="'.$img_file.'" '.
 			' "http://image.issuu.com/'.$document_id.'/jpg/page_'.$cur_page.'.jpg"';
+	
+		if ( $wget_is_win and $os eq 'cygwin' ) {
+			$cmd = $wget_bin.' -nv -q --output-document="'._path_cyg_to_win( $img_file ).'" '.
+				' "http://image.issuu.com/'.$document_id.'/jpg/page_'.$cur_page.'.jpg"';
+		}
+	
 	
 		my @output = qx( $cmd );
 		my $exit_value = $? >> 8;
@@ -456,6 +471,13 @@ sub _get_document {
 		say '('.$$.') '.$line;
 	}
 	
+}
+
+sub _path_cyg_to_win {
+	my $path = shift || '';
+	$path =~ s{/cygdrive/(\w+)/}{$1:\\};
+	$path =~ s{/}{\\}g;
+	return $path;
 }
 
 
