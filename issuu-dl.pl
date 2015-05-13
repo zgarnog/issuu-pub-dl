@@ -241,7 +241,7 @@ sub _get_doc_data_by_url {
 			Carp::croak( 'command failed' );
 		}
 	
-		my $content = File::Slurp::read_file( $temp_file );
+		my $content = File::Slurp::read_file( $temp_file ); # croaks on failure
 		unlink $temp_file;
 		
 		
