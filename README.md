@@ -1,7 +1,6 @@
 # Issuu Publication Downloader v1.3 
 
 **v1.3 by zgarnog**
-**v1.0 by eqagunn**
 
 ## Purpose
 
@@ -11,12 +10,12 @@ and save each document as a pdf.
 ## Caveats
 
 Can create large pdf files ( > 100M ), because each page is downloaded
-as a jpg image, rather than text plus images as woul normally be stored
+as a jpg image, rather than text plus images, as would normally be stored
 in a pdf file.
 
 Resulting pdf file size depends on the number of pages in the document, 
-and how large each page`s image file is. This can depend on how complex
-the document`s pages are.
+and how large each page's image file is. This depends on how complex
+the document's page images are.
 
 
 ## Downloading A Document
@@ -31,10 +30,12 @@ On linux, this can be done by running **issuu-dl.pl**
 or **perl issuu-dl.pl**.
 
 This will show a prompt where you can paste an Issuu document URL.
-These are usually in the format *http://issuu.com/[user]/docs/[title]*.
+These are usually in the format ```http://issuu.com/[user]/docs/[title]```.
 
-The program will download each page as a .jpg file, and then
-convert all of the .jpg files to a single .pdf file.
+The program will download each page as a .jpg file stored in a 
+subdirectory under **downloads**. It will then convert all of 
+the .jpg files to a single .pdf file stored directly 
+under **downloads**.
 
 
 ### Other Options
@@ -42,11 +43,15 @@ convert all of the .jpg files to a single .pdf file.
 See [issuu-dl.md](issuu-dl.md) SYNOPSIS for options.
 
 
-### Directories
+### Downloads Directories and Files
+
+The program stores downloaded data in a **downloads** subdirectory under the 
+directory the program is located.
 
 *.jpg* files are saved under a directory named in the format **downloads/[title]**.
-These files are left behind after the .pdf file is created; it is up to you to
-clean them up.
+These files are **left behind** after the .pdf file is created; it is up to you to
+clean them up. This also means you can do something different with them if
+you want to.
 
 *.pdf* files created are saved in a file named in the format **downloads/[title].pdf**.
 
