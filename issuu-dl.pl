@@ -81,6 +81,7 @@ if ( $debug ) {
 	say 'os '.$os.' ( lc_os: '.$lc_os.' )';
 }
 
+my $nice_bin = '';
 if ( $os ne 'windows' ) {
 	# look for linux/cygwin wget
 	my @output = qx( which wget 2>&1 );
@@ -95,8 +96,22 @@ if ( $os ne 'windows' ) {
 	} elsif ( $os ne 'cygwin' ) {
 		die( 'ERROR - failed to find wget in path' );
 	}
+
+	# look for linux/cygwin nice
+	@output = qx( which nice 2>&1 );
+	$exit_value = $? >> 8;
+	if ( $exit_value == 0 and @output and $output[0] ) {
+		chomp @output;
+		$nice_bin = $output[0];
+		if ( $debug ) {
+			say 'found '.$os.' nice: '.$nice_bin;
+		}
+	} elsif ( $os ne 'cygwin' ) {
+		_say( 'WARN - failed to find nice in path' );
+	}
+
 } elsif ( $debug ) {
-	say 'using '.$os.' wget: '.$wget_bin;
+	say 'using '.$os.' nice: '.( $nice_bin || 'none' );
 }
 
 
@@ -223,11 +238,11 @@ sub _get_doc_data_by_url {
 	
 		my $temp_file = 'temp-'.time().'.html';
 	
-		my $cmd = $wget_bin.' -nv -q --output-document="'.$temp_file.'" '.
+		my $cmd = $nice_bin.' '.$wget_bin.' -nv -q --output-document="'.$temp_file.'" '.
 				' "'.$url.'" ';
 	
 		if ( $wget_is_win and $os eq 'cygwin' ) {
-			$cmd = $wget_bin.' -nv -q --output-document="'._path_cyg_to_win( $temp_file ).'" '.
+			$cmd = $nice_bin.' '.$wget_bin.' -nv -q --output-document="'._path_cyg_to_win( $temp_file ).'" '.
 				' "'.$url.'" ';
 		}
 	
@@ -434,11 +449,11 @@ sub _get_document {
 			next PAGE;
 		}
 		
-		my $cmd = $wget_bin.' -nv -q --output-document="'.$img_file.'" '.
+		my $cmd = $nice_bin.' '.$wget_bin.' -nv -q --output-document="'.$img_file.'" '.
 			' "http://image.issuu.com/'.$document_id.'/jpg/page_'.$cur_page.'.jpg"';
 	
 		if ( $wget_is_win and $os eq 'cygwin' ) {
-			$cmd = $wget_bin.' -nv -q --output-document="'._path_cyg_to_win( $img_file ).'" '.
+			$cmd = $nice_bin.' '.$wget_bin.' -nv -q --output-document="'._path_cyg_to_win( $img_file ).'" '.
 				' "http://image.issuu.com/'.$document_id.'/jpg/page_'.$cur_page.'.jpg"';
 		}
 	
@@ -468,7 +483,7 @@ sub _get_document {
 	say '';
 	
 	
-	my $cmd = 'perl '.$FindBin::Bin.'/jpg-to-pdf.pl "'.$dest.'"';
+	my $cmd = $nice_bin.' perl '.$FindBin::Bin.'/jpg-to-pdf.pl "'.$dest.'"';
 	
 	my $CMD_OUT = undef;
 	if ( ! ( open $CMD_OUT, '-|', $cmd.' 2>&1 ' ) ) {
