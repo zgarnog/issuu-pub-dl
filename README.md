@@ -20,6 +20,12 @@ These are usually in the format *http://issuu.com/[user]/docs/[title]*.
 The program will download each page as a .jpg file, and then
 convert all of the .jpg files to a single .pdf file.
 
+
+## Other Download Options
+
+See [issuu-dl.md](issuu-dl.md) SYNOPSIS for options.
+
+
 ### Directories
 
 *.jpg* files are saved under a directory named in the format **downloads/[title]**.

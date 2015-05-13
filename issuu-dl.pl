@@ -511,6 +511,11 @@ issuu-dl.pl
   by URL:
     issuu-dl.pl --url=[string] [options]
 
+  by list of URLs:
+    issuu-dl.pl --list=[urls_list_file.txt] [options]
+
+    [urls_list_file.txt] should be a file containing one URL per line.
+
   by document id:
     issuu-dl.pl [title] [total_pages] [document_id] [options]
 
