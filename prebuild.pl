@@ -19,6 +19,7 @@ my $pod2md_bin = File::Spec->catfile( $wd, 'pod2md.pl' );
 
 my @commands = (
 	$pod2md_bin.' '.File::Spec->catfile( $wd, 'issuu-dl.pl' ),
+	$pod2md_bin.' '.File::Spec->catfile( $wd, 'jpg-to-pdf.pl' ),
 );
 
 my $count = 0;
