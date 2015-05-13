@@ -430,7 +430,7 @@ sub _get_document {
 	
 		my $size = ( -s $img_file ) || 0;
 		if ( $size > 0 ) {
-			say 'file exists, > 0 b, skip: '.$short_img_file.' '.$size.' b';
+			say 'SKIP: file exists > 0 b: '.$short_img_file.' '.$size.' b';
 			next PAGE;
 		}
 		
