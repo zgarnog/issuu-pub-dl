@@ -1,6 +1,22 @@
 # Issuu Publication Downloader v1.3 
 
-**v1.0 by eqagunn, modified by zgarnog**
+**v1.3 by zgarnog**
+**v1.0 by eqagunn**
+
+## Purpose
+
+To download one or more documents from http://issuu.com/ 
+and save each document as a pdf.
+
+## Caveats
+
+Can create large pdf files ( > 100M ), because each page is downloaded
+as a jpg image, rather than text plus images as woul normally be stored
+in a pdf file.
+
+Resulting pdf file size depends on the number of pages in the document, 
+and how large each page`s image file is. This can depend on how complex
+the document`s pages are.
 
 
 ## Downloading A Document
