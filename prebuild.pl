@@ -22,8 +22,8 @@ my $pod2html_bin = File::Spec->catfile( $wd, 'bin', 'pod2html.pl' );
 my @commands = (
 	$md2html_bin.' '.File::Spec->catfile( $wd, 'README.md' ),
 
-#	$pod2md_bin.' '.File::Spec->catfile( $wd, 'issuu-dl.pl' ),
-#	$pod2md_bin.' '.File::Spec->catfile( $wd, 'jpg-to-pdf.pl' ),
+	$pod2md_bin.' '.File::Spec->catfile( $wd, 'issuu-dl.pl' ),
+	$pod2md_bin.' '.File::Spec->catfile( $wd, 'jpg-to-pdf.pl' ),
 
 	$pod2html_bin.' '.File::Spec->catfile( $wd, 'issuu-dl.pl' ),
 	$pod2html_bin.' '.File::Spec->catfile( $wd, 'jpg-to-pdf.pl' ),

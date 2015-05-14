@@ -1,5 +1,13 @@
 #!/usr/bin/perl
-
+BEGIN { 
+	use FindBin;
+	use File::Spec;
+	use lib File::Spec->catfile( 
+		$FindBin::Bin,
+		File::Spec->updir(),
+		'lib'
+		);
+}
 
 # System
 use strict;

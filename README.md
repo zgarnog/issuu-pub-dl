@@ -40,7 +40,7 @@ under **downloads**.
 
 ### Other Options
 
-See [issuu-dl](issuu-dl.html) SYNOPSIS for options.
+See issuu-dl [html](issuu-dl.html)/[md](issuu-dl.md) SYNOPSIS for options.
 
 
 ### Downloads Directories and Files
@@ -65,7 +65,7 @@ to a single .pdf file.
 
 #### Other Options
 
-See [jpg-to-pdf](jpg-to-pdf.html) SYNOPSIS for options.
+See jpg-to-pdf [html](jpg-to-pdf.html)/[md](jpg-to-pdf.md) SYNOPSIS for options.
 
 
 ## DEPENDENCIES
