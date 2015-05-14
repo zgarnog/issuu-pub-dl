@@ -15,11 +15,18 @@ $| = 1; # autoflush STDOUT
 
 my $wd = $FindBin::Bin;
 
-my $pod2md_bin = File::Spec->catfile( $wd, 'pod2md.pl' );
+my $md2html_bin  = File::Spec->catfile( $wd, 'bin', 'md2html.pl' );
+my $pod2md_bin 	 = File::Spec->catfile( $wd, 'bin', 'pod2md.pl' );
+my $pod2html_bin = File::Spec->catfile( $wd, 'bin', 'pod2html.pl' );
 
 my @commands = (
-	$pod2md_bin.' '.File::Spec->catfile( $wd, 'issuu-dl.pl' ),
-	$pod2md_bin.' '.File::Spec->catfile( $wd, 'jpg-to-pdf.pl' ),
+	$md2html_bin.' '.File::Spec->catfile( $wd, 'README.md' ),
+
+#	$pod2md_bin.' '.File::Spec->catfile( $wd, 'issuu-dl.pl' ),
+#	$pod2md_bin.' '.File::Spec->catfile( $wd, 'jpg-to-pdf.pl' ),
+
+	$pod2html_bin.' '.File::Spec->catfile( $wd, 'issuu-dl.pl' ),
+	$pod2html_bin.' '.File::Spec->catfile( $wd, 'jpg-to-pdf.pl' ),
 );
 
 my $count = 0;

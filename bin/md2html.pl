@@ -9,12 +9,13 @@ BEGIN {
 		);
 }
 
+
 # System
 use strict;
 use warnings;
 use feature ':5.10';
 use File::Slurp;
-use Pod::HTML;
+use Text::Markdown;
 
 $| = 1; # autoflush STDOUT
 
@@ -28,7 +29,7 @@ say '';
 my ( $in_file ) = @ARGV;
 
 if ( ! $in_file ) {
-	say 'USAGE: '.$prog.' [perl_file]';
+	say 'USAGE: '.$prog.' [md_file]';
 	say '';
 	die( 'nothing to do' );
 }
@@ -45,24 +46,25 @@ if ( -e $out_file ) {
 	say '';
 }
 
+my $in_content = File::Slurp::read_file( $in_file );
 
-my $cmd = join( ' ', ( 
-	"pod2html",
-#	"--podpath=lib:ext:pod:vms",
-#	"--podroot=/usr/src/perl",
-#	"--htmlroot=/perl/nmanual",
-#	"--libpods=perlfunc:perlguts:perlvar:perlrun:perlop",
-#	"--recurse",
-	"--infile=".$in_file,
-	"--outfile=".$out_file,
-) );
-
-print qx( $cmd );
-my $exit_val = $? >> 8;
-if ( $exit_val == 0 ) {
-	say 'OK - wrote to file: '.$out_file;
-} else {
-	say 'ERROR - failed to write to file: '.$out_file;
+if ( ! $in_content ) {
+	die( 'ERROR - no content loaded from '.$in_file ); 
 }
 
+say 'OK - read content from pod file: '.$in_file;
+
+my $md = Text::Markdown->new;
+my $out_content = $md->markdown($in_content);
+
+if ( ! $out_content ) {
+	die( 'ERROR - failed to parse input' );
+}
+
+
+File::Slurp::write_file( $out_file, { buf_ref => \$out_content } );
+
+say 'OK - wrote to file: '.$out_file;
+
+# vim: ts=4;paste;syntax on
 

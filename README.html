@@ -1,0 +1,171 @@
+<h1>Issuu Publication Downloader v1.3</h1>
+
+<p><strong>v1.3 by zgarnog</strong></p>
+
+<h2>Purpose</h2>
+
+<p>To download one or more documents from http://issuu.com/ 
+and save each document as a pdf.</p>
+
+<h2>Caveats</h2>
+
+<p>Can create large pdf files ( > 100M ), because each page is downloaded
+as a jpg image, rather than text plus images, as would normally be stored
+in a pdf file.</p>
+
+<p>Resulting pdf file size depends on the number of pages in the document, 
+and how large each page's image file is. This depends on how complex
+the document's page images are.</p>
+
+<h2>Downloading A Document</h2>
+
+<p>You can download a document's images by its URL with 
+one command.</p>
+
+<p>On Windows, this can be done by running <strong>issuu-dl</strong>.
+This is the file with the Issuu icon.</p>
+
+<p>On linux, this can be done by running <strong>issuu-dl.pl</strong> 
+or <strong>perl issuu-dl.pl</strong>.</p>
+
+<p>This will show a prompt where you can paste an Issuu document URL.
+These are usually in the format <code>http://issuu.com/[user]/docs/[title]</code>.</p>
+
+<p>The program will download each page as a .jpg file stored in a 
+subdirectory under <strong>downloads</strong>. It will then convert all of 
+the .jpg files to a single .pdf file stored directly 
+under <strong>downloads</strong>.</p>
+
+<h3>Other Options</h3>
+
+<p>See <a href="issuu-dl.html">issuu-dl</a> SYNOPSIS for options.</p>
+
+<h3>Downloads Directories and Files</h3>
+
+<p>The program stores downloaded data in a <strong>downloads</strong> subdirectory under the 
+directory the program is located.</p>
+
+<p><em>.jpg</em> files are saved under a directory named in the format <strong>downloads/[title]</strong>.
+These files are <strong>left behind</strong> after the .pdf file is created; it is up to you to
+clean them up. This also means you can do something different with them if
+you want to.</p>
+
+<p><em>.pdf</em> files created are saved in a file named in the format <strong>downloads/[title].pdf</strong>.</p>
+
+<h3>Converting Images to PDF</h3>
+
+<p>After downloading, you may want to re-convert images to PDF.
+On Windows, you can use <strong>jpg-to-pdf</strong>. On linux use <strong>perl jpg-to-pdf.pl</strong>. 
+This is the program run by <strong>issuu-dl</strong> to convert multiple .jpg images 
+to a single .pdf file.</p>
+
+<h4>Other Options</h4>
+
+<p>See <a href="jpg-to-pdf.html">jpg-to-pdf</a> SYNOPSIS for options.</p>
+
+<h2>DEPENDENCIES</h2>
+
+<ul>
+<li>Perl   ( tested with v5.14.2 )
+<ul>
+<li>under Windows: <a href="http://dwimperl.com/">DWIM Perl</a></li>
+<li>under cygwin:  cygwin perl</li>
+</ul></li>
+<li><a href="http://www.imagemagick.org/">Image Magick</a> ( tested with 6.9.1-2 Q16 x64 )
+<ul>
+<li>this is used for converting from .jpg to .pdf</li>
+</ul></li>
+</ul>
+
+<h3>Testing Done</h3>
+
+<ul>
+<li>tested under Windows 7, 
+via command prompt and explorer</li>
+<li><p>also tested under Windows 7 cygwin 64-bit 
+linux-like command-line</p></li>
+<li><p>tested with Perl v5.14.2 </p></li>
+<li>tested with Image Magick 6.9.1-2 Q16 x64</li>
+</ul>
+
+<h2>URLs</h2>
+
+<p><a href="https://github.com/zgarnog">zgarnog on github</a></p>
+
+<p><a href="http://eqagunn.blogspot.com/">equagunn on blogspot</a></p>
+
+<h2>Further Notes</h2>
+
+<p>The .pl files contain documentation about their usage including
+options not described here.</p>
+
+<h3>ImageMagick Convert Options</h3>
+
+<p>You can also use ImageMagick <strong>convert</strong> command directly,
+in a command prompts or shell, by using a command similar to one
+of the following variants. </p>
+
+<p>See the <a href="http://www.imagemagick.org/script/convert.php">ImageMagick convert documentation</a> for more options.</p>
+
+<h4>Windows:</h4>
+
+<p>```
+convert path_to_document_dir*.jpg document_name.pdf</p>
+
+<p>convert -density 300 path_to_document_dir*.jpg document_name.pdf
+```</p>
+
+<h4>Linux:</h4>
+
+<p>```
+convert path_to_document_dir/*.jpg document_name.pdf</p>
+
+<p>convert -density 300 path_to_document_dir/*.jpg document_name.pdf
+```</p>
+
+<h1>Issuu Publication Downloader v1.0 (2012-03-18)</h1>
+
+<p><strong>by eqagunn</strong></p>
+
+<h2>About Issuu:</h2>
+
+<p>Issuu is an online service that allows for realistic and customizable viewing
+of digitally uploaded material, such as portfolios, books, magazine issues,
+newspapers, and other print media. It integrates with social networking sites
+to promote uploaded material. Issuu's service is comparable to what Flickr
+does for photo-sharing, and what YouTube does for video-sharing. While most
+of the documents are meant to be viewed online, some can be downloaded and
+saved as well. Uploaded print material is viewed through a web browser and is
+made to look like a printed publication with an animated page flip options.</p>
+
+<h2>About This Tool:</h2>
+
+<p>The tool itself is a batch script that uses GNU Wget made by Giuseppe Scrivano
+and Hrvoje Nikšiæ. The main purpose of it is downloading Issuu publications
+which aren't available for the download the usual way. Normally, to download an
+Issuu publication, one has to register first, and publication itself needs to
+have download enabled. When using this tool neither of these two requirements
+are needed because it downloads the images, shown to users through a Flash
+application when they are reading them, directly from the server.</p>
+
+<h2>How to Use It:</h2>
+
+<p>You can either run it with Windows Explorer or call it through Command Prompt.
+Just run a file named issuudl.bat and you will be asked to enter a document ID
+and number of pages of the publication you want to download. All downloaded
+files are being saved into downloads folder, into a subfolder named by document
+ID. You can also call it with Command Prompt and use it with parameters. First
+parameter is Document ID and second one is Number of Pages. Not specifying one
+or both of those parameters will result in batch file asking you to input them.
+You can also specify a third parameter which is a name of the folder in which
+downloaded files will be saved. Keep in mind that a long name argument needs
+to be enclosed with quotes. This parameter is optional and if you don't specify
+it folder will be named by document ID. Upon downloading the publication
+"Done!" message will be displayed accompanied by a beep sound.</p>
+
+<h2>Final Words:</h2>
+
+<p>I made this tool because I couldn't find another way to download ebook named
+The Art of Video Games: From Pac-Man to Mass Effect. In the end, I decided to
+share it hoping it might help someone, somewhere out there. Feel free to visit
+my blog http://eqagunn.blogspot.com where I write computer related stuff.</p>
