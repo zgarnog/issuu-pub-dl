@@ -84,7 +84,7 @@ if ( $debug ) {
 my $nice_bin = '';
 if ( $os ne 'windows' ) {
 	# look for linux/cygwin wget
-	my @output = qx( which wget 2>&1 );
+	my @output = qx( which wget >&1 );
 	my $exit_value = $? >> 8;
 	if ( $exit_value == 0 and @output and $output[0] ) {
 		chomp @output;
@@ -488,7 +488,7 @@ sub _get_document {
 	my $cmd = $nice_bin.' perl '.$pl_file.' "'.$dest.'"';
 	
 	my $CMD_OUT = undef;
-	if ( ! ( open $CMD_OUT, '-|', $cmd.' 2>&1 ' ) ) {
+	if ( ! ( open $CMD_OUT, '-|', $cmd ) ) {
 		say 'INFO - command: '.$cmd;
 		Carp::croak( 'failed to run command: '.$! );
 	}
