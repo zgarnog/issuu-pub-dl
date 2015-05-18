@@ -7,15 +7,25 @@
 <p>To download one or more documents from http://issuu.com/ 
 and save each document as a pdf.</p>
 
-<h2>Caveats</h2>
+<h2>Install (under Windows)</h2>
 
-<p>Can create large pdf files ( > 100M ), because each page is downloaded
-as a jpg image, rather than text plus images, as would normally be stored
-in a pdf file.</p>
+<p>Download and install <a href="http://dwimperl.com/">DWIM Perl</a>. 
+(Unless you already have another Perl >= v5.14.2 installed.)</p>
 
-<p>Resulting pdf file size depends on the number of pages in the document, 
-and how large each page's image file is. This depends on how complex
-the document's page images are.</p>
+<p>Download and install <a href="http://www.imagemagick.org/">Image Magick</a>. 
+(Tested with 6.9.1-2 Q16 x64.)</p>
+
+<p>Download this repository as an archive (ex: .zip) and extract it
+to a folder.</p>
+
+<h2>Install (under Linux)</h2>
+
+<p>This has not been tested under Linux, but may work properly.</p>
+
+<p>You will need perl >= v5.14.2 and Image Magick >= 6.9.1-2 installed.</p>
+
+<p>Download this repository as an archive (ex: .zip) and extract it
+to a folder.</p>
 
 <h2>Downloading A Document</h2>
 
@@ -34,9 +44,9 @@ These are usually in the format <code>http://issuu.com/[user]/docs/[title]</code
 <p>The program will download each page as a .jpg file stored in a 
 subdirectory under <strong>downloads</strong>. It will then convert all of 
 the .jpg files to a single .pdf file stored directly 
-under <strong>downloads</strong>.</p>
+under <strong>downloads</strong> (this step uses Image Magick).</p>
 
-<h3>Other Options</h3>
+<h3>Other Download Options</h3>
 
 <p>See issuu-dl <a href="issuu-dl.html">html</a>/<a href="issuu-dl.md">md</a> SYNOPSIS for options.</p>
 
@@ -59,7 +69,17 @@ On Windows, you can use <strong>jpg-to-pdf</strong>. On linux use <strong>perl j
 This is the program run by <strong>issuu-dl</strong> to convert multiple .jpg images 
 to a single .pdf file.</p>
 
-<h4>Other Options</h4>
+<h3>Caveats</h3>
+
+<p>Can create large pdf files ( > 100M ), because each page is downloaded
+as a jpg image, rather than text plus images, as would normally be stored
+in a pdf file.</p>
+
+<p>Resulting pdf file size depends on the number of pages in the document, 
+and how large each page's image file is. This depends on how complex
+the document's page images are.</p>
+
+<h4>Other Coversion Options</h4>
 
 <p>See jpg-to-pdf <a href="jpg-to-pdf.html">html</a>/<a href="jpg-to-pdf.md">md</a> SYNOPSIS for options.</p>
 

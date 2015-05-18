@@ -7,15 +7,26 @@
 To download one or more documents from http://issuu.com/ 
 and save each document as a pdf.
 
-## Caveats
 
-Can create large pdf files ( > 100M ), because each page is downloaded
-as a jpg image, rather than text plus images, as would normally be stored
-in a pdf file.
+## Install (under Windows)
 
-Resulting pdf file size depends on the number of pages in the document, 
-and how large each page's image file is. This depends on how complex
-the document's page images are.
+Download and install [DWIM Perl](http://dwimperl.com/). 
+(Unless you already have another Perl >= v5.14.2 installed.)
+
+Download and install [Image Magick](http://www.imagemagick.org/). 
+(Tested with 6.9.1-2 Q16 x64.)
+
+Download this repository as an archive (ex: .zip) and extract it
+to a folder.
+
+## Install (under Linux)
+
+This has not been tested under Linux, but may work properly.
+
+You will need perl >= v5.14.2 and Image Magick >= 6.9.1-2 installed.
+
+Download this repository as an archive (ex: .zip) and extract it
+to a folder.
 
 
 ## Downloading A Document
@@ -35,10 +46,10 @@ These are usually in the format ```http://issuu.com/[user]/docs/[title]```.
 The program will download each page as a .jpg file stored in a 
 subdirectory under **downloads**. It will then convert all of 
 the .jpg files to a single .pdf file stored directly 
-under **downloads**.
+under **downloads** (this step uses Image Magick).
 
 
-### Other Options
+### Other Download Options
 
 See issuu-dl [html](issuu-dl.html)/[md](issuu-dl.md) SYNOPSIS for options.
 
@@ -62,8 +73,19 @@ On Windows, you can use **jpg-to-pdf**. On linux use **perl jpg-to-pdf.pl**.
 This is the program run by **issuu-dl** to convert multiple .jpg images 
 to a single .pdf file.
 
+### Caveats
 
-#### Other Options
+Can create large pdf files ( > 100M ), because each page is downloaded
+as a jpg image, rather than text plus images, as would normally be stored
+in a pdf file.
+
+Resulting pdf file size depends on the number of pages in the document, 
+and how large each page's image file is. This depends on how complex
+the document's page images are.
+
+
+
+#### Other Coversion Options
 
 See jpg-to-pdf [html](jpg-to-pdf.html)/[md](jpg-to-pdf.md) SYNOPSIS for options.
 

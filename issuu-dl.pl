@@ -483,7 +483,9 @@ sub _get_document {
 	say '';
 	
 	
-	my $cmd = $nice_bin.' perl '.$FindBin::Bin.'/jpg-to-pdf.pl "'.$dest.'"';
+	my $pl_file = File::Spec->catpath( '', $FindBin::Bin, 'jpg-to-pdf.pl' );
+
+	my $cmd = $nice_bin.' perl '.$pl_file.' "'.$dest.'"';
 	
 	my $CMD_OUT = undef;
 	if ( ! ( open $CMD_OUT, '-|', $cmd.' 2>&1 ' ) ) {
