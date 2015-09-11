@@ -110,6 +110,8 @@ See jpg-to-pdf [html](jpg-to-pdf.html)/[md](jpg-to-pdf.md) SYNOPSIS for options.
 
 ## URLs
 
+[zgarnog blog](https://zgarnog.wordpress.com/)
+
 [zgarnog on github](https://github.com/zgarnog)
 
 [equagunn on blogspot](http://eqagunn.blogspot.com/)
@@ -165,7 +167,7 @@ made to look like a printed publication with an animated page flip options.
 ## About This Tool:
 
 The tool itself is a batch script that uses GNU Wget made by Giuseppe Scrivano
-and Hrvoje NiköiÊ. The main purpose of it is downloading Issuu publications
+and Hrvoje Nik≈°i√¶. The main purpose of it is downloading Issuu publications
 which aren't available for the download the usual way. Normally, to download an
 Issuu publication, one has to register first, and publication itself needs to
 have download enabled. When using this tool neither of these two requirements
