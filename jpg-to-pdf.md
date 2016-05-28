@@ -17,6 +17,8 @@ jpg-to-pdf.pl
     options:
       --output=[filename.pdf]
       --density=[integer]
+      --convert-limit-memory=[integer MB]
+      --convert-limit-map=[integer MB]
 
 # AUTHOR
 

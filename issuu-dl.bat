@@ -1,6 +1,6 @@
 @echo off
 
-perl issuu-dl.pl
+perl issuu-dl.pl %*
 
 echo.
 echo Press any key to exit...

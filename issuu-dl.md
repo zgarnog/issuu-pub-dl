@@ -51,3 +51,23 @@ Issuu Publication Downloader v1.0
       - now calls other perl script to convert jpg to pdf,
       - now asks for URL interactively if not received
         via option.
+
+    2015-05-20 zgarnog
+      - now cleans title
+      - in list mode, now prints which url it is processing
+
+    2015-05-20 zgarnog
+      - VERSION 1.3.1
+        - if a page fails to download, now retries up to 10 times
+
+    2015-05-28 zgarnog
+      - VERSION 1.3.2
+        - jpg-to-pdf.pl now creates a pdf for each page,
+          then adds all pdfs into one pdf file
+          - this is to miniize total memory used at one
+            time by ImageMagick convert.exe
+
+    2015-05-28 zgarnog
+      - VERSION 1.3.3
+        - added config file
+          - has options to limit memory used (ram and swap)

@@ -1,0 +1,20 @@
+---
+
+# config options for issuu-dl.pl
+issuu_dl:
+
+  # max number of times to retry downloading a jpg file for a single page
+  # after an error ocurrs
+  max_dl_page_retries: 10
+
+# config options for jpg-to-pdf.pl
+jpg_to_pdf:
+
+  # documentation on limit options:
+  # http://www.imagemagick.org/script/command-line-options.php#limit
+
+  # limit-memory is in MB - limit amount of RAM used by ImageMagick convert 
+  convert_limit_memory : "2GiB"
+
+  # limit-map is in MB - limit amount of swap used by ImageMagick convert 
+  convert_limit_map: "1GiB"

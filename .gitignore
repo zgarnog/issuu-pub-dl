@@ -3,3 +3,4 @@
 *.sw*
 /downloads/
 /temp-*.html
+/config.yaml

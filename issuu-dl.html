@@ -2,7 +2,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>/cygdrive/c/Users/andre_000/Downloads/issuu-pub-dl-git/issuu-dl.pl</title>
+<title>/cygdrive/C/Users/andrewp/Downloads/issuu-pub-dl-git/issuu-dl.pl</title>
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 <link rev="made" href="mailto:Yaakov@yaakov04.nonet" />
 </head>
@@ -84,6 +84,26 @@
    - now calls other perl script to convert jpg to pdf,
    - now asks for URL interactively if not received
      via option.</pre>
+<pre>
+ 2015-05-20 zgarnog
+   - now cleans title
+   - in list mode, now prints which url it is processing</pre>
+<pre>
+ 2015-05-20 zgarnog
+   - VERSION 1.3.1
+     - if a page fails to download, now retries up to 10 times</pre>
+<pre>
+ 2015-05-28 zgarnog
+   - VERSION 1.3.2
+     - jpg-to-pdf.pl now creates a pdf for each page,
+       then adds all pdfs into one pdf file
+       - this is to miniize total memory used at one
+         time by ImageMagick convert.exe</pre>
+<pre>
+ 2015-05-28 zgarnog
+   - VERSION 1.3.3
+     - added config file
+       - has options to limit memory used (ram and swap)</pre>
 
 </body>
 
