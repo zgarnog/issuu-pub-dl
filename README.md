@@ -1,6 +1,6 @@
-# Issuu Publication Downloader v1.3 
+# Issuu Publication Downloader
 
-**v1.3 by zgarnog**
+**v1.4 by zgarnog**
 
 ## Purpose
 
@@ -19,14 +19,35 @@ Download and install [Image Magick](http://www.imagemagick.org/).
 Download this repository as an archive (ex: .zip) and extract it
 to a folder.
 
+It is best to put it in a short path, such as under C:\ , to prevent
+problems with long path errors.
+
 ## Install (under Linux)
-
-This has not been tested under Linux, but may work properly.
-
-You will need perl >= v5.14.2 and Image Magick >= 6.9.1-2 installed.
 
 Download this repository as an archive (ex: .zip) and extract it
 to a folder.
+
+You will need **perl >= v5.14.2** and **Image Magick >= 6.9.1-2** installed.
+
+You may also need the **libfile-slurp-perl** package, in debian-based 
+Linux distros.
+
+It may be best to put it in a short path, to prevent
+problems with long path errors. This is a known problems under Windows,
+but may not be a problem under Linux.
+
+### Ubuntu Linux Derivative
+
+This [was tested](https://github.com/zgarnog/issuu-pub-dl/issues/2)
+by [alfem](https://github.com/alfem) in an **Ubuntu 16.04**
+derivative. It worked perfectly after he installed perl::slurp from 
+the **libfile-slurp-perl** package first.
+
+### Other Linux Distributions
+
+This has not been tested under other Linux distributions, but may work 
+properly.
+
 
 
 ## Downloading A Document
@@ -40,8 +61,12 @@ This is the file with the Issuu icon.
 On linux, this can be done by running **issuu-dl.pl** 
 or **perl issuu-dl.pl**.
 
-This will show a prompt where you can paste an Issuu document URL.
-These are usually in the format ```http://issuu.com/[user]/docs/[title]```.
+This will show a prompt where you can enter "Y" to select a 
+filename containing a list of URLs to download. If you do not
+enter "Y" it will go to the next step:
+
+The next step is to show a prompt where you can paste an Issuu document 
+URL. These are usually in the format ```http://issuu.com/[user]/docs/[title]```.
 
 The program will download each page as a .jpg file stored in a 
 subdirectory under **downloads**. It will then convert all of 
@@ -90,6 +115,7 @@ the document's page images are.
 See jpg-to-pdf [html](jpg-to-pdf.html)/[md](jpg-to-pdf.md) SYNOPSIS for options.
 
 
+
 ## DEPENDENCIES
 
   - Perl   ( tested with v5.14.2 )
@@ -108,9 +134,19 @@ See jpg-to-pdf [html](jpg-to-pdf.html)/[md](jpg-to-pdf.md) SYNOPSIS for options.
   - tested with Perl v5.14.2 
   - tested with Image Magick 6.9.1-2 Q16 x64
 
-## URLs
+## Configuration File
 
-[zgarnog blog](https://zgarnog.wordpress.com/)
+On its first run, issuu-dl.pl will create a ```config.yaml```
+file in its directory (a copy of config-template.yaml).
+
+```config.yaml``` can be modified to change the behaviour of
+issuu-dl.pl and jpg-to-pdf.pl . It contains comments
+describing the config options.
+
+It is in [YAML](http://yaml.org/) format, which is a well-known plain text 
+format that is machine-readable.
+
+## URLs
 
 [zgarnog on github](https://github.com/zgarnog)
 
@@ -167,7 +203,7 @@ made to look like a printed publication with an animated page flip options.
 ## About This Tool:
 
 The tool itself is a batch script that uses GNU Wget made by Giuseppe Scrivano
-and Hrvoje Nik≈°i√¶. The main purpose of it is downloading Issuu publications
+and Hrvoje NiköiÊ. The main purpose of it is downloading Issuu publications
 which aren't available for the download the usual way. Normally, to download an
 Issuu publication, one has to register first, and publication itself needs to
 have download enabled. When using this tool neither of these two requirements

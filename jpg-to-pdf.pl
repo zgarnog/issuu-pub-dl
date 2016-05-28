@@ -1,4 +1,7 @@
 #!/usr/bin/perl
+BEGIN {
+	use FindBin;
+}
 
 
 $| = 1; # autoflush STDOUT
@@ -13,26 +16,104 @@ use Getopt::Long;
 use Pod::Usage;
 use FindBin;
 use File::Spec;
+use YAML;
+
+# lib/
+use lib $FindBin::Bin.'/lib/';
+use IssuuPubDL 1.0.0;
+
 
 
 #my $convert_opts = ' -density 600 '; # optional
 
+my $config_file = File::Spec->catfile( $FindBin::Bin, 'config.yaml' );
+
+my %config = ();
+if ( ! -e $config_file ) {
+	die( 'config file not found; please run issuu-dl.pl to create one' );
+} 
+
+my $ref = YAML::LoadFile( $config_file ) or die( 'failed to load YAML config file: '.$config_file );
+%config = %$ref;
 
 
-my ( $wd ) = @ARGV;
-$wd ||= '';
+my $lc_os = lc( $^O );
+
+my $os = 'linux_maybe';
+if ( $lc_os =~ /mswin/ ) {
+	$os = 'windows';
+} elsif ( $lc_os =~ /cygwin/ ) {
+	$os = 'cygwin';
+}
+
+
+
+
 my $output_file;
 my $density;
+my $convert_limit_memory;
+my $convert_limit_map;
+my $debug;
 GetOptions(
 	'output=s'	=> \$output_file,
 	'density=i'	=> \$density,
-);
+	'convert-limit-memory=s'	=> \$convert_limit_memory,
+	'convert-limit-map=s'		=> \$convert_limit_map,
+	'debug'	=> \$debug,
+) or die( 'invalid options' );
+
+my ( $wd ) = @ARGV;
+$wd ||= '';
+
+if ( $debug ) {
+	say 'os '.$os.' ( lc_os: '.$lc_os.' )';
+}
 
 
-my $convert_program = 'convert';
+
+# BEGIN - verify config
+
+
+my %pl_config = ();
+if ( defined $config{jpg_to_pdf} ) {
+	if ( ref $config{jpg_to_pdf} ne 'HASH' ) {
+		die( 'config{jpg_to_pdf} should be undef or an HASH ref' );
+	}
+	%pl_config = %{ $config{jpg_to_pdf} };
+
+	if ( $pl_config{convert_limit_memory} !~ /^\d+\w*$/ ) {
+		die( 'config{jpg_to_pdf}{convert_limit_memory} invalid format' );
+	}
+	if ( $pl_config{convert_limit_map} !~ /^\d+\w*$/ ) {
+		die( 'config{jpg_to_pdf}{convert_limit_map} invalid format' );
+	}
+}
+
+if ( ! $convert_limit_memory and defined $pl_config{convert_limit_memory} ) {
+	$convert_limit_memory = $pl_config{convert_limit_memory};
+}
+if ( ! $convert_limit_map and defined $pl_config{convert_limit_map} ) {
+	$convert_limit_map = $pl_config{convert_limit_map};
+}
+
+	
+# END - verify config
+
+
+
+
+
+
+my $convert_program = 'convert.exe';
 my $convert_opts = ' ';
 if ( $density ) {
 	$convert_opts .= ' -density '.$density.' ';
+}
+if ( $convert_limit_memory ) {
+	$convert_opts .= ' -limit memory '.$convert_limit_memory.' ';
+}
+if ( $convert_limit_map ) {
+	$convert_opts .= ' -limit map '.$convert_limit_map.' ';
 }
 
 $wd ||= '';
@@ -112,27 +193,68 @@ $wd =~ s/"$//;
 
 my $start_time = time();
 
-my $cmd = join( ' ', (
+my $search_dir = $wd;
+if ( $search_dir =~ /\s/ ) {
+	$search_dir = '"'.$search_dir.'"';
+}
+
+my $jpg_files_glob = File::Spec->catpath( '', $search_dir, '*.jpg' );
+my @files = glob( $jpg_files_glob );
+say 'found ['.scalar( @files ).'] jpg files';
+if ( ! @files ) {
+	die( 'no .jpg files found under '.$search_dir );
+}
+if ( $debug ) {
+	say '  '.$_ for @files;
+}
+if ( $os eq 'cygwin' ) {
+	# will be running windows convert.exe, so need windows paths
+#	$jpg_files_glob = IssuuPubDL::path_to_win( $jpg_files_glob );
+	foreach my $i ( 0 .. scalar @files - 1 ) {
+		$files[ $i ] = IssuuPubDL::path_to_win( $files[ $i ] );
+	}
+	$output_file 	= IssuuPubDL::path_to_win( $output_file );
+}
+
+my $cmd_start = join( ' ', (
 	$convert_program,
 	$convert_opts,
-	File::Spec->catpath( '', '"'.$wd.'"', '*.jpg' ),
-	'"'.$output_file.'"',
 ) );
 
-say 'running: '.$cmd;
+my $cmd_end = '"'.$output_file.'"';
+
+my $cmd = join( ' ', (
+	$cmd_start,
+	'"'.join( '" "', @files ).'"',
+	$cmd_end,
+) );
+
+my $cmd_descr = join( ' ', (
+	$cmd_start,
+	IssuuPubDL::path_to_win( $jpg_files_glob ),
+	$cmd_end,
+) );
+
+say 'running cmd like: '.$cmd_descr;
+if ( $debug ) {
+	say 'actual cmd'.$cmd;
+}
 my @output = qx( $cmd );
 my $exit_val = $? >> 8;
 if ( $exit_val ) {
-	say 'ERROR - command falied with exit value ['.$exit_val.']';
+	my $msg = 'command falied with exit value ['.$exit_val.']';
+	say 'ERROR - '.$msg;
 	say 'output:';
 	chomp @output;
 	say 'OUT - '.$_ for @output;
-	die( 'command failed' );
+	die( $msg.' (path may be too long)' );
 } else {
 	if ( ! -f $output_file ) {
 		say 'command OK but PDF not found: '.$output_file;
 	} else {
-		say 'created pdf "'.$output_file.'" in '.( time() - $start_time ).' seconds';
+		my $bytes = -s $output_file;
+		my $mb = sprintf( '%0.2f', $bytes / ( 1024 * 1024 ) );
+		say 'created pdf "'.$output_file.'" ('.$mb.' Mb) in '.( time() - $start_time ).' seconds';
 	}
 }
 
@@ -159,6 +281,9 @@ jpg-to-pdf.pl
   options:
     --output=[filename.pdf]
     --density=[integer]
+    --convert-limit-memory=[string]
+    --convert-limit-map=[string]
+    --debug    print debug output
 
 =head1 AUTHOR
 
@@ -174,6 +299,12 @@ zgarnog <zgarnog@yandex.com>
 
   - 2015-04-20
      - created
+
+  - 2015-04-28 zgarnog
+    - added config file
+      - has options to limit memory used 
+        by ImageMagick convert.exe (ram and swap)
+    - fix for paths to convert.exe under cygwin
 
 =cut
 
